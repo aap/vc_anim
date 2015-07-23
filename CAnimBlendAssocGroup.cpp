@@ -44,8 +44,6 @@ CAnimBlendAssocGroup::CopyAnimation(const char *name)
 	return NULL;
 }
 
-WRAPPER RpAtomic *AtomicRemoveAnimFromSkinCB(RpAtomic*, void*) { EAXJMP(0x489750); }
-
 void
 CAnimBlendAssocGroup::CreateAssociations(const char *name, RpClump *clump, char **names, int numAnims)
 {
@@ -70,7 +68,7 @@ CAnimBlendAssocGroup::CreateAssociations(const char *name, RpClump *clump, char 
 void
 CAnimBlendAssocGroup::CreateAssociations(const char *name)
 {
-	DestroyAssociations();
+	this->DestroyAssociations();
 
 	this->animBlock = CAnimManager::GetAnimationBlock(name);
 	int numAnims = this->animBlock->numAnims;
@@ -85,7 +83,8 @@ CAnimBlendAssocGroup::CreateAssociations(const char *name)
 		void *model = GetModelFromName(anim->name);
 		if(model){
 			// wtf?
-			RpClump *clump = (RpClump *)(*(int (**)(void))(*(int *)model + 12))();
+			// CClumpModelInfo::CreateInstance()
+			RpClump *clump = ((RpClump* (__thiscall*)(void*)) (*(void***)model)[3])(model);
 			RpAnimBlendClumpInit(clump);
 			this->assocList[i].Init(clump, anim);
 			if(IsClumpSkinned(clump))
