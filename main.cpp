@@ -97,26 +97,26 @@ patch10(void)
 	MemoryVP::InjectHook(0x401270, static_cast<void(CAnimBlendAssocGroup::*)(void)>(&CAnimBlendAssocGroup::DestroyAssociations), PATCH_JUMP);
 	MemoryVP::InjectHook(0x4012A0, static_cast<void(CAnimBlendAssocGroup::*)(const char *name, RpClump *clump, char **names, int numAnims)>(&CAnimBlendAssocGroup::CreateAssociations), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401380, static_cast<void(CAnimBlendAssocGroup::*)(const char*)>(&CAnimBlendAssocGroup::CreateAssociations), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401640, static_cast<void(CAnimBlendAssocGroup::*)(void)>(&CAnimBlendAssocGroup::DestroyAssociations), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401670, static_cast<void(CAnimBlendAssocGroup::*)(void)>(&CAnimBlendAssocGroup::ctor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401640, (&CAnimBlendAssocGroup::DestroyAssociations), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401670, (&CAnimBlendAssocGroup::ctor), PATCH_JUMP);
 
-	MemoryVP::InjectHook(0x4016A0, static_cast<void(CAnimBlendAssociation::*)(void(*)(CAnimBlendAssociation*, void*), void*)>(&CAnimBlendAssociation::SetFinishCallback), PATCH_JUMP);
-	MemoryVP::InjectHook(0x4016C0, static_cast<void(CAnimBlendAssociation::*)(void(*)(CAnimBlendAssociation*, void*), void*)>(&CAnimBlendAssociation::SetDeleteCallback), PATCH_JUMP);
-	MemoryVP::InjectHook(0x4016E0, static_cast<void(CAnimBlendAssociation::*)(float, float)>(&CAnimBlendAssociation::SetBlend), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401700, static_cast<void(CAnimBlendAssociation::*)(float)>(&CAnimBlendAssociation::Start), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401720, static_cast<CAnimBlendNode*(CAnimBlendAssociation::*)(int)>(&CAnimBlendAssociation::GetNode), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401740, static_cast<void(CAnimBlendAssociation::*)(CAnimBlendAssociation*)>(&CAnimBlendAssociation::SyncAnimation), PATCH_JUMP);
+	MemoryVP::InjectHook(0x4016A0, (&CAnimBlendAssociation::SetFinishCallback), PATCH_JUMP);
+	MemoryVP::InjectHook(0x4016C0, (&CAnimBlendAssociation::SetDeleteCallback), PATCH_JUMP);
+	MemoryVP::InjectHook(0x4016E0, (&CAnimBlendAssociation::SetBlend), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401700, (&CAnimBlendAssociation::Start), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401720, (&CAnimBlendAssociation::GetNode), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401740, (&CAnimBlendAssociation::SyncAnimation), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401820, static_cast<void(CAnimBlendAssociation::*)(CAnimBlendAssociation&)>(&CAnimBlendAssociation::Init), PATCH_JUMP);
 	MemoryVP::InjectHook(0x4018F0, static_cast<void(CAnimBlendAssociation::*)(RpClump *clump, CAnimBlendHierarchy *anim)>(&CAnimBlendAssociation::Init), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401A00, static_cast<void(CAnimBlendAssociation::*)(void)>(&CAnimBlendAssociation::dtor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401A00, (&CAnimBlendAssociation::dtor), PATCH_JUMP);
 	// no need to hook the copy constructor, it's only called from our code. too complicated anyway
-	MemoryVP::InjectHook(0x401AB0, static_cast<void(CAnimBlendAssociation::*)(void)>(&CAnimBlendAssociation::ctor), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401B10, static_cast<void(CAnimBlendAssociation::*)(char)>(&CAnimBlendAssociation::dtor2), PATCH_JUMP);
-	MemoryVP::InjectHook(0x402C90, static_cast<bool(CAnimBlendAssociation::*)(float)>(&CAnimBlendAssociation::UpdateBlend), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401AB0, (&CAnimBlendAssociation::ctor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401B10, (&CAnimBlendAssociation::dtor2), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402C90, (&CAnimBlendAssociation::UpdateBlend), PATCH_JUMP);
 
-	MemoryVP::InjectHook(0x401C70, static_cast<void(CAnimBlendHierarchy::*)(void)>(&CAnimBlendHierarchy::RemoveUncompressedData), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401C70, (&CAnimBlendHierarchy::RemoveUncompressedData), PATCH_JUMP);
 
-	MemoryVP::InjectHook(0x402A00, static_cast<void(CAnimBlendNode::*)(void)>(&CAnimBlendNode::Init), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402A00, (&CAnimBlendNode::Init), PATCH_JUMP);
 }
 
 BOOL WINAPI
