@@ -45,7 +45,29 @@ CAnimBlendAssociation::SyncAnimation(CAnimBlendAssociation *anim)
 }
 
 
-WRAPPER void CAnimBlendAssociation::SetCurrentTime(float time) { EAXJMP(0x401770); }
+//WRAPPER void CAnimBlendAssociation::SetCurrentTime(float time) { EAXJMP(0x401770); }
+
+void
+CAnimBlendAssociation::SetCurrentTime(float time)
+{
+	for(this->currentTime = time;
+	    this->currentTime >= this->hierarchy->totalLength;
+	    this->currentTime -= this->hierarchy->totalLength)
+		if(!(this->flags & 2)){
+			this->currentTime = this->hierarchy->totalLength;
+			break;
+		}
+	CAnimManager::UncompressAnimation(this->hierarchy);
+	if(this->hierarchy->compressed){
+		for(int i = 0; i < this->numNodes; i++)
+			if(this->nodes[i].sequence)
+				this->nodes[i].SetupKeyFrameCompressed();
+	}else{
+		for(int i = 0; i < this->numNodes; i++)
+			if(this->nodes[i].sequence)
+				this->nodes[i].FindKeyFrame(this->currentTime);
+	}
+}
 
 void
 CAnimBlendAssociation::Init(CAnimBlendAssociation &anim)

@@ -64,7 +64,6 @@ CAnimManager::LoadAnimFile(RwStream *stream, bool a2, const char (*a3)[32])
 	EAXJMP(0x404A50);
 }
 
-// BUGS
 CAnimBlendAssociation*
 CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float delta)
 {
@@ -98,7 +97,7 @@ CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float delt
 	}
 	if(found){
 		found->blendDelta = (1.0f - found->blendAmount)*delta;
-		if(!(found->flags & 1) && found->currentTime != found->hierarchy->totalLength)
+		if(!(found->flags & 1) && found->currentTime == found->hierarchy->totalLength)
 			found->Start(0.0f);
 	}else{
 		found = CAnimManager::ms_aAnimAssocGroups[groupId].CopyAnimation(animId);

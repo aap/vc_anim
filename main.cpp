@@ -106,6 +106,7 @@ patch10(void)
 	MemoryVP::InjectHook(0x401700, (&CAnimBlendAssociation::Start), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401720, (&CAnimBlendAssociation::GetNode), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401740, (&CAnimBlendAssociation::SyncAnimation), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401770, (&CAnimBlendAssociation::SetCurrentTime), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401820, static_cast<void(CAnimBlendAssociation::*)(CAnimBlendAssociation&)>(&CAnimBlendAssociation::Init), PATCH_JUMP);
 	MemoryVP::InjectHook(0x4018F0, static_cast<void(CAnimBlendAssociation::*)(RpClump *clump, CAnimBlendHierarchy *anim)>(&CAnimBlendAssociation::Init), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401A00, (&CAnimBlendAssociation::dtor), PATCH_JUMP);

@@ -144,7 +144,9 @@ public:
 	CAnimBlendSequence *sequence;		// !!
 	CAnimBlendAssociation *blendAssoc;	// reference to owner
 
+	bool FindKeyFrame(float time);
 	void Init(void);
+	void SetupKeyFrameCompressed(void);
 };
 
 class CAnimBlendAssociation
