@@ -27,3 +27,26 @@ CAnimBlendHierarchy::CalcTotalTimeCompressed(void)
 }
 
 WRAPPER void CAnimBlendHierarchy::Shutdown(void) { EAXJMP(0x401F00); }
+
+CAnimBlendHierarchy::~CAnimBlendHierarchy(void) { dtor(); }
+
+void
+CAnimBlendHierarchy::dtor(void)
+{
+	CAnimManager::RemoveFromUncompressedCache(this);
+	if(this->blendSequences)
+		destroy_array(this->blendSequences, &CAnimBlendSequence::dtor);
+	this->blendSequences = 0;
+	this->numSequences = 0;
+	this->totalLength = 0.0f;
+}
+
+CAnimBlendHierarchy::CAnimBlendHierarchy(void)
+{
+	this->blendSequences = 0;
+	this->numSequences = 0;
+	this->loadSpecial = 0;
+	this->compressed = 0;
+	this->totalLength = 0.0f;
+	this->linkPtr = NULL;
+}

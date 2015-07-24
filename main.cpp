@@ -2,6 +2,8 @@
 
 HMODULE dllModule, hDummyHandle;
 
+void **&RwEngineInst = *(void***)0x7870C0;
+
 WRAPPER void *RwMallocAlign(uint, int) { EAXJMP(0x5805D0); }
 WRAPPER void RwFreeAlign(void*) { EAXJMP(0x5805C0); }
 WRAPPER void gtadelete(void*) { EAXJMP(0x6428B0); }
@@ -62,7 +64,9 @@ patch10(void)
 	   sizeof(CAnimBlendAssociation) != 0x3C ||
 	   sizeof(CAnimBlendAssocGroup) != 0x14 ||
 	   sizeof(AnimBlendFrameData) != 0x18 ||
-	   sizeof(CAnimBlendClumpData) != 0x14){
+	   sizeof(CAnimBlendClumpData) != 0x14 ||
+	   sizeof(RFrame) != 0x14 ||
+	   sizeof(RTFrame) != 0x20){
 		printf("SIZE MISMATCH\\n");
 		return;
 	}
@@ -117,6 +121,15 @@ patch10(void)
 	MemoryVP::InjectHook(0x402D60, (&CAnimBlendAssociation::UpdateTime), PATCH_JUMP);
 
 	MemoryVP::InjectHook(0x401C70, (&CAnimBlendHierarchy::RemoveUncompressedData), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401F40, (&CAnimBlendHierarchy::dtor), PATCH_JUMP);
+
+	MemoryVP::InjectHook(0x402A20, (&CAnimBlendSequence::RemoveQuaternionFlips), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402AF0, (&CAnimBlendSequence::SetNumFrames), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402B80, (&CAnimBlendSequence::SetBoneTag), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402B90, (&CAnimBlendSequence::SetName), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402BB0, (&CAnimBlendSequence::dtor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402BF0, (&CAnimBlendSequence::ctor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402C20, (&CAnimBlendSequence::dtor2), PATCH_JUMP);
 
 	MemoryVP::InjectHook(0x402A00, (&CAnimBlendNode::Init), PATCH_JUMP);
 }
@@ -130,7 +143,7 @@ DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 /*		AllocConsole();
 		freopen("CONIN$", "r", stdin);
 		freopen("CONOUT$", "w", stdout);
-		freopen("CONOUT$", "w", stderr); */
+		freopen("CONOUT$", "w", stderr);*/
 
 		GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCSTR)&DllMain, &hDummyHandle);
 

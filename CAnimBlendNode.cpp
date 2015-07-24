@@ -1,5 +1,11 @@
 #include "vc_anim.h"
 
+WRAPPER void
+CAnimBlendNode::SetupKeyFrameCompressed(void)
+{
+	EAXJMP(0x4021C0);
+}
+
 WRAPPER bool
 CAnimBlendNode::FindKeyFrame(float time)
 {
@@ -14,10 +20,4 @@ CAnimBlendNode::Init(void)
 	this->f = 0.0f;
 	this->frame1 = -1;
 	this->frame0 = -1;
-}
-
-WRAPPER void
-CAnimBlendNode::SetupKeyFrameCompressed(void)
-{
-	EAXJMP(0x4021C0);
 }

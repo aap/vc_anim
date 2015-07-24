@@ -12,6 +12,8 @@
 
 typedef unsigned int uint;
 
+extern void **&RwEngineInst;
+
 void *RwMallocAlign(uint size, int alignment);
 void RwFreeAlign(void*);
 void gtadelete(void*);
@@ -54,6 +56,16 @@ destroy_array(AT mem, FT f)
 int gtastrcmp(const char *s1, const char *s2);
 int lcstrcmp(const char *s1, const char *s2);
 
+class CQuaternion {
+public:
+	float x, y, z, w;
+};
+
+class CVector {
+public:
+	float x, y, z;
+};
+
 class CAnimBlendSequence;
 class CAnimBlendHierarchy;
 class CAnimBlock;
@@ -68,6 +80,17 @@ extern int &ClumpOffset;
 void RpAnimBlendClumpInit(RpClump *);
 AnimBlendFrameData *RpAnimBlendClumpFindFrame(RpClump *clump, char *name);
 AnimBlendFrameData *RpAnimBlendClumpFindBone(RpClump *clump, int tag);
+
+struct RFrame {
+	CQuaternion rot;
+	float time;
+};
+
+struct RTFrame {
+	CQuaternion rot;
+	float time;
+	CVector pos;
+};
 
 class CLink_CAnimBlendHierarchy {
 public:
@@ -100,8 +123,18 @@ public:
 	int numFrames;
 	short boneTag;
 	short k;
-	void *framesA;
-	void *framesB;
+	void *keyFrames;
+	void *framesB;		// what's this?
+
+	void RemoveQuaternionFlips(void);
+	void SetNumFrames(int numFrames, char TS, char special);
+	void SetBoneTag(int tag);
+	void SetName(const char *name);
+	CAnimBlendSequence(void);
+	~CAnimBlendSequence(void);
+	void ctor(void);
+	void dtor(void);
+	void dtor2(char flag);
 };
 
 class CAnimBlendHierarchy
@@ -110,8 +143,8 @@ public:
 	char name[24];
 	CAnimBlendSequence *blendSequences;
 	short numSequences;
-	char loadSpecial;
-	char compressed;
+	char loadSpecial;		// special? who came up with this name? me?
+	char compressed;		// really compressed?
 	float totalLength;
 	CLink_CAnimBlendHierarchy *linkPtr;
 
@@ -119,6 +152,9 @@ public:
 	void Uncompress(void);
 	void CalcTotalTimeCompressed(void);
 	void Shutdown(void);
+	~CAnimBlendHierarchy(void);
+	CAnimBlendHierarchy(void);
+	void dtor(void);
 };
 
 class CAnimBlock
@@ -149,6 +185,7 @@ public:
 	void SetupKeyFrameCompressed(void);
 };
 
+// complete
 class CAnimBlendAssociation
 {
 	enum Flags {
@@ -192,6 +229,7 @@ public:
 	void dtor2(char flag);
 };
 
+// complete
 class CAnimBlendAssocGroup
 {
 public:
@@ -243,6 +281,7 @@ struct AnimAssocDefinition
 	} *animInfoList;
 };
 
+// almost complete (LoadAnimFile() still missing)
 class CAnimManager
 {
 public:
