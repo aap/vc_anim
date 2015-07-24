@@ -113,6 +113,7 @@ patch10(void)
 	MemoryVP::InjectHook(0x401AB0, (&CAnimBlendAssociation::ctor), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401B10, (&CAnimBlendAssociation::dtor2), PATCH_JUMP);
 	MemoryVP::InjectHook(0x402C90, (&CAnimBlendAssociation::UpdateBlend), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402D60, (&CAnimBlendAssociation::UpdateTime), PATCH_JUMP);
 
 	MemoryVP::InjectHook(0x401C70, (&CAnimBlendHierarchy::RemoveUncompressedData), PATCH_JUMP);
 

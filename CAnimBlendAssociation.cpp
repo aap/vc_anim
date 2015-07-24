@@ -109,13 +109,13 @@ CAnimBlendAssociation::CAnimBlendAssociation(CAnimBlendAssociation &a)
 CAnimBlendAssociation::~CAnimBlendAssociation(void) { dtor(); }
 
 bool
-CAnimBlendAssociation::UpdateBlend(float f)
+CAnimBlendAssociation::UpdateBlend(float timeDelta)
 {
-	this->blendAmount += this->blendDelta * f;
-	if(this->blendAmount > 0.0 || this->blendDelta < 0.0)
+	this->blendAmount += this->blendDelta * timeDelta;
+	if(isnan(this->blendAmount) || this->blendAmount > 0.0f || this->blendDelta >= 0.0f)
 		goto xyz;
 	this->blendAmount = 0.0f;
-	if(this->blendDelta >= 0.0)
+	if(this->blendDelta < 0.0f)
 		this->blendDelta = 0.0f;
 	if(this->flags & 4){
 		if(this->callbackType == 1 || this->callbackType == 2)
@@ -133,7 +133,33 @@ xyz:
 		}
 		return 1;
 	}
-	return 1;
+}
+
+void
+CAnimBlendAssociation::UpdateTime(float f1, float f2)
+{
+	if((this->flags & 1) == 0)
+		return;
+	if(this->currentTime >= this->hierarchy->totalLength){
+		this->flags &= ~1;
+		return;
+	}
+	this->currentTime += this->timeStep;
+	if(this->currentTime >= this->hierarchy->totalLength){
+		if(this->flags & 2)
+			this->currentTime -= this->hierarchy->totalLength;
+		else{
+			this->currentTime = this->hierarchy->totalLength;
+			if(this->flags & 8){
+				this->flags |= 4;
+				this->blendDelta = -4.0f;
+			}
+			if(this->callbackType == 1){
+				this->callbackType = 0;
+				this->callback(this, this->callbackArg);
+			}
+		}
+	}
 }
 
 void

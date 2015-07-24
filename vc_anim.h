@@ -184,6 +184,7 @@ public:
 	CAnimBlendAssociation(CAnimBlendAssociation&);
 	~CAnimBlendAssociation(void);
 	bool UpdateBlend(float f);
+	void UpdateTime(float f1, float f2);
 	void ctor(void);
 	void dtor(void);
 	void dtor2(char flag);

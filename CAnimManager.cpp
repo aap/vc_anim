@@ -64,8 +64,9 @@ CAnimManager::LoadAnimFile(RwStream *stream, bool a2, const char (*a3)[32])
 	EAXJMP(0x404A50);
 }
 
+// BUGS
 CAnimBlendAssociation*
-CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float speed)
+CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float delta)
 {
 	int removePrevAnim = 0;
 	int isMovement, isPartial;
@@ -77,7 +78,7 @@ CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float spee
 	CAnimBlendAssociation *found = NULL, *movementAnim = NULL;
 	for(next = clumpData->blendAssociation; next; next = *(void**)next){
 		anim = (CAnimBlendAssociation*)((void**)next - 1);
-		if(isMovement && anim->flags & 0x20)
+		if(isMovement && (anim->flags & 0x20))
 			movementAnim = anim;
 		if(anim->animId == animId)
 			found = anim;
@@ -86,8 +87,8 @@ CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float spee
 				if(anim->blendAmount <= 0.0f)
 					anim->blendDelta = -1.0f;
 				else{
-					float x = -speed*anim->blendAmount;
-					if(x >= anim->blendDelta || !isPartial )
+					float x = -delta*anim->blendAmount;
+					if(x < anim->blendDelta || !isPartial)
 						anim->blendDelta = x;
 				}
 				anim->flags |= 4;
@@ -96,28 +97,30 @@ CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float spee
 		}
 	}
 	if(found){
-		found->blendDelta = (1.0f - found->blendAmount)*speed;
-		if((found->flags & 1) == 0 && found->currentTime != found->hierarchy->totalLength)
+		found->blendDelta = (1.0f - found->blendAmount)*delta;
+		if(!(found->flags & 1) && found->currentTime != found->hierarchy->totalLength)
 			found->Start(0.0f);
 	}else{
 		found = CAnimManager::ms_aAnimAssocGroups[groupId].CopyAnimation(animId);
-		if(found->flags & 0x20 && movementAnim){
+		if((found->flags & 0x20) && movementAnim){
 			found->SyncAnimation(movementAnim);
 			found->flags |= 1;
 		}else
 			found->Start(0.0f);
+
 		void *tmp = &found->next;
 		if(clumpData->blendAssociation)
 			*((void**)clumpData->blendAssociation + 1) = tmp;
 		*(void**)tmp = clumpData->blendAssociation;
 		found->prev = clumpData;
 		clumpData->blendAssociation = tmp;
+
 		if(!removePrevAnim && !isPartial){
 			found->blendAmount = 1.0f;
 			return found;
 		}
 		found->blendAmount = 0.0f;
-		found->blendDelta = speed;
+		found->blendDelta = delta;
 	}
 	CAnimManager::UncompressAnimation(found->hierarchy);
 	return found;
