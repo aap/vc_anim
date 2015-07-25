@@ -13,6 +13,7 @@ WRAPPER RwStream *RwStreamOpen(RwStreamType, RwStreamAccessType, const void *) {
 WRAPPER RwBool RwStreamClose(RwStream*, void*) { EAXJMP(0x6458F0); }
 WRAPPER RpClump *RpClumpForAllAtomics(RpClump*, RpAtomicCallBack, void*) { EAXJMP(0x640D00); }
 WRAPPER RwBool RpClumpDestroy(RpClump*) { EAXJMP(0x641430); }
+WRAPPER void CQuaternion::Slerp(CQuaternion&, CQuaternion&, float, float, float) { EAXJMP(0x4DFBE0); }
 
 
 WRAPPER void *GetModelFromName(char *name) { EAXJMP(0x4014D0); }
@@ -144,6 +145,8 @@ patch10(void)
 	MemoryVP::InjectHook(0x402360, (&CAnimBlendNode::GetEndTranslation), PATCH_JUMP);
 	MemoryVP::InjectHook(0x402400, (&CAnimBlendNode::GetCurrentTranslation), PATCH_JUMP);
 	MemoryVP::InjectHook(0x402550, (&CAnimBlendNode::CalcDeltas), PATCH_JUMP);
+	MemoryVP::InjectHook(0x4026C0, (&CAnimBlendNode::NextKeyFrame), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402770, (&CAnimBlendNode::Update), PATCH_JUMP);
 	MemoryVP::InjectHook(0x402A00, (&CAnimBlendNode::Init), PATCH_JUMP);
 
 	MemoryVP::InjectHook(0x401B90, (&CAnimBlendClumpData::ForAllFrames), PATCH_JUMP);

@@ -61,6 +61,8 @@ int lcstrcmp(const char *s1, const char *s2);
 class CQuaternion {
 public:
 	float x, y, z, w;
+
+	void Slerp(CQuaternion &q1, CQuaternion &q2, float theta0, float theta1, float r);
 };
 
 class CVector {
@@ -196,6 +198,8 @@ public:
 	void GetEndTranslation(CVector *vec, float f);
 	void GetCurrentTranslation(CVector *vec, float f);
 	void CalcDeltas(void);
+	bool NextKeyFrame(void);
+	bool Update(CVector &vec, CQuaternion &quat, float f);
 	void Init(void);
 };
 
