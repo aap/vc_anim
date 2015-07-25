@@ -84,7 +84,7 @@ CAnimBlendAssociation::Init(CAnimBlendAssociation &anim)
 		this->nodes[i].theta1 = anim.nodes[i].theta1;
 		this->nodes[i].frame0 = anim.nodes[i].frame0;
 		this->nodes[i].frame1 = anim.nodes[i].frame1;
-		this->nodes[i].f = anim.nodes[i].f;
+		this->nodes[i].time = anim.nodes[i].time;
 		this->nodes[i].sequence = anim.nodes[i].sequence;
 		this->nodes[i].blendAssoc = this;
 	}

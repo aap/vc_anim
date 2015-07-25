@@ -14,19 +14,75 @@ CAnimBlendHierarchy::RemoveUncompressedData(void)
 	this->loadSpecial = 1;
 }
 
-WRAPPER void
+void
 CAnimBlendHierarchy::Uncompress(void)
 {
-	EAXJMP(0x401C80);
+	this->loadSpecial = 0;
+	if(this->totalLength == 0.0f){
+		for(int i = 0; i < this->numSequences; i++)
+			this->blendSequences[i].RemoveQuaternionFlips();
+		this->CalcTotalTime();
+	}
 }
 
 void
-CAnimBlendHierarchy::CalcTotalTimeCompressed(void)
+CAnimBlendHierarchy::RemoveQuaternionFlips(void)
 {
-	EAXJMP(0x401D00);
+	for(int i = 0; i < this->numSequences; i++)
+		this->blendSequences[i].RemoveQuaternionFlips();
 }
 
-WRAPPER void CAnimBlendHierarchy::Shutdown(void) { EAXJMP(0x401F00); }
+WRAPPER void
+CAnimBlendHierarchy::CalcTotalTimeCompressed(void)
+{
+	this->totalLength = 0.0f;
+	for(int i = 0; i < this->numSequences; i++){
+		CAnimBlendSequence *seq = &this->blendSequences[i];
+		RFrame *last = (RFrame*)GETCFRAME(seq, seq->numFrames-1);
+		if(last->time/60.f > this->totalLength)
+			this->totalLength = last->time/60.f;
+		for(int j = seq->numFrames-1; j > 0; j--){
+			RFrame *f1 = (RFrame*)GETCFRAME(seq, j);
+			RFrame *f2 = (RFrame*)GETCFRAME(seq, j-1);
+			f1->time -= f2->time;
+		}
+	}
+}
+
+void
+CAnimBlendHierarchy::CalcTotalTime(void)
+{
+	this->totalLength = 0.0f;
+	for(int i = 0; i < this->numSequences; i++){
+		CAnimBlendSequence *seq = &this->blendSequences[i];
+		RFrame *last = (RFrame*)GETFRAME(seq, seq->numFrames-1);
+		if(last->time > this->totalLength)
+			this->totalLength = last->time;
+		for(int j = seq->numFrames-1; j > 0; j--){
+			RFrame *f1 = (RFrame*)GETFRAME(seq, j);
+			RFrame *f2 = (RFrame*)GETFRAME(seq, j-1);
+			f1->time -= f2->time;
+		}
+	}
+}
+
+void
+CAnimBlendHierarchy::SetName(const char *name)
+{
+	strncpy(this->name, name, 24);
+}
+
+void
+CAnimBlendHierarchy::Shutdown(void)
+{
+	CAnimManager::RemoveFromUncompressedCache(this);
+	if(this->blendSequences)
+		destroy_array(this->blendSequences, &CAnimBlendSequence::dtor);
+	this->blendSequences = NULL;
+	this->numSequences = 0;
+	this->totalLength = 0.0f;
+	this->loadSpecial = 0;
+}
 
 CAnimBlendHierarchy::~CAnimBlendHierarchy(void) { dtor(); }
 

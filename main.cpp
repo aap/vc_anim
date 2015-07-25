@@ -121,7 +121,14 @@ patch10(void)
 	MemoryVP::InjectHook(0x402D60, (&CAnimBlendAssociation::UpdateTime), PATCH_JUMP);
 
 	MemoryVP::InjectHook(0x401C70, (&CAnimBlendHierarchy::RemoveUncompressedData), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401C80, (&CAnimBlendHierarchy::Uncompress), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401CD0, (&CAnimBlendHierarchy::RemoveQuaternionFlips), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401D00, (&CAnimBlendHierarchy::CalcTotalTimeCompressed), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401DF0, (&CAnimBlendHierarchy::CalcTotalTime), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401EE0, (&CAnimBlendHierarchy::SetName), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401F00, (&CAnimBlendHierarchy::Shutdown), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401F40, (&CAnimBlendHierarchy::dtor), PATCH_JUMP);
+	// ctor is called before we're attached (static init)
 
 	MemoryVP::InjectHook(0x402A20, (&CAnimBlendSequence::RemoveQuaternionFlips), PATCH_JUMP);
 	MemoryVP::InjectHook(0x402AF0, (&CAnimBlendSequence::SetNumFrames), PATCH_JUMP);
@@ -131,7 +138,18 @@ patch10(void)
 	MemoryVP::InjectHook(0x402BF0, (&CAnimBlendSequence::ctor), PATCH_JUMP);
 	MemoryVP::InjectHook(0x402C20, (&CAnimBlendSequence::dtor2), PATCH_JUMP);
 
+	MemoryVP::InjectHook(0x401FB0, (&CAnimBlendNode::CalcDeltasCompressed), PATCH_JUMP);
+	MemoryVP::InjectHook(0x4021C0, (&CAnimBlendNode::SetupKeyFrameCompressed), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402240, (&CAnimBlendNode::FindKeyFrame), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402360, (&CAnimBlendNode::GetEndTranslation), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402400, (&CAnimBlendNode::GetCurrentTranslation), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402550, (&CAnimBlendNode::CalcDeltas), PATCH_JUMP);
 	MemoryVP::InjectHook(0x402A00, (&CAnimBlendNode::Init), PATCH_JUMP);
+
+	MemoryVP::InjectHook(0x401B90, (&CAnimBlendClumpData::ForAllFrames), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401BC0, (&CAnimBlendClumpData::SetNumberOfBones), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401C00, (&CAnimBlendClumpData::dtor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401C40, (&CAnimBlendClumpData::ctor), PATCH_JUMP);
 }
 
 BOOL WINAPI

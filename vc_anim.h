@@ -1,9 +1,11 @@
 #define _CRT_SECURE_NO_WARNINGS
+#define _USE_MATH_DEFINES
 
 #include <windows.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <assert.h>
+#include <math.h>
 #include <rwcore.h>
 #include <rwplcore.h>
 #include <rpworld.h>
@@ -73,7 +75,7 @@ class CAnimBlendNode;
 class CAnimBlendAssociation;
 class CAnimBlendAssocGroup;
 struct AnimBlendFrameData;
-struct CAnimBlendClumpData;
+class CAnimBlendClumpData;
 class CAnimManager;
 
 extern int &ClumpOffset;
@@ -114,6 +116,10 @@ public:
 	void Remove(CLink_CAnimBlendHierarchy*);
 };
 
+#define GETFRAME(seq, i) ((char*)(seq)->keyFrames + (((seq)->flag & 2) ? sizeof(RTFrame) : sizeof(RFrame))*(i))
+#define GETCFRAME(seq, i) ((char*)(seq)->keyFramesCompressed + (((seq)->flag & 2) ? sizeof(RTFrame) : sizeof(RFrame))*(i))
+
+// complete
 class CAnimBlendSequence
 {
 public:
@@ -124,7 +130,7 @@ public:
 	short boneTag;
 	short k;
 	void *keyFrames;
-	void *framesB;		// what's this?
+	void *keyFramesCompressed;
 
 	void RemoveQuaternionFlips(void);
 	void SetNumFrames(int numFrames, char TS, char special);
@@ -137,20 +143,24 @@ public:
 	void dtor2(char flag);
 };
 
+// complete
 class CAnimBlendHierarchy
 {
 public:
 	char name[24];
 	CAnimBlendSequence *blendSequences;
 	short numSequences;
-	char loadSpecial;		// special? who came up with this name? me?
+	char loadSpecial;		// special? who came up with this name? me? should be named compressed probably
 	char compressed;		// really compressed?
 	float totalLength;
 	CLink_CAnimBlendHierarchy *linkPtr;
 
 	void RemoveUncompressedData(void);
 	void Uncompress(void);
+	void RemoveQuaternionFlips(void);
 	void CalcTotalTimeCompressed(void);
+	void CalcTotalTime(void);
+	void SetName(const char *name);
 	void Shutdown(void);
 	~CAnimBlendHierarchy(void);
 	CAnimBlendHierarchy(void);
@@ -176,22 +186,27 @@ public:
 	float theta1;
 	int frame0;
 	int frame1;
-	float f;
+	float time;
 	CAnimBlendSequence *sequence;		// !!
 	CAnimBlendAssociation *blendAssoc;	// reference to owner
 
-	bool FindKeyFrame(float time);
-	void Init(void);
+	void CalcDeltasCompressed(void);
 	void SetupKeyFrameCompressed(void);
+	void FindKeyFrame(float time);
+	void GetEndTranslation(CVector *vec, float f);
+	void GetCurrentTranslation(CVector *vec, float f);
+	void CalcDeltas(void);
+	void Init(void);
 };
 
 // complete
 class CAnimBlendAssociation
 {
-	enum Flags {
-		Partial = 0x10
-	};
 public:
+	enum Flags {
+		Partial = 0x10,
+		Movement = 0x20
+	};
 	void *vtable;
 	void *next;				// pointer to next "next"
 	void *prev;				// pointer to to previous variable pointing to "next"
@@ -259,13 +274,22 @@ struct AnimBlendFrameData
 	int nodeID;
 };
 
-struct CAnimBlendClumpData
+// complete
+class CAnimBlendClumpData
 {
-	void *blendAssociation;			// pointer to CAnimBlendAssociation::next
-	int b;
+public:
+	void *nextAssoc;			// pointer to CAnimBlendAssociation::next
+	void *prevAssoc;
 	int numFrames;
-	int d;
+	int d;		// ??
 	AnimBlendFrameData *frames;
+
+	void ForAllFrames(void (*cb)(AnimBlendFrameData*, void*), void *arg);
+	void SetNumberOfBones(int n);
+	~CAnimBlendClumpData(void);
+	CAnimBlendClumpData(void);
+	void ctor(void);
+	void dtor(void);
 };
 
 struct AnimAssocDefinition

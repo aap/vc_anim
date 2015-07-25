@@ -41,7 +41,7 @@ CAnimBlendSequence::SetNumFrames(int numFrames, char TS, char special)
 		frames = rwmalloc(sizeof(RTFrame) * numFrames);
 	}
 	if(special)
-		this->framesB = frames;
+		this->keyFramesCompressed = frames;
 	else
 		this->keyFrames = frames;
 	this->numFrames = numFrames;
@@ -70,7 +70,7 @@ CAnimBlendSequence::ctor(void)
 	this->flag = 0;
 	this->numFrames = 0;
 	this->keyFrames = NULL;
-	this->framesB = NULL;
+	this->keyFramesCompressed = NULL;
 	this->boneTag = -1;
 }
 
@@ -80,8 +80,8 @@ CAnimBlendSequence::dtor(void)
 	this->vtable = &CAnimBlendSequence_VTable;
 	if(this->keyFrames)
 		((void (*)(void*))(*(RwEngineInst + 0x4d)))(this->keyFrames);
-	if(this->framesB)
-		((void (*)(void*))(*(RwEngineInst + 0x4d)))(this->framesB);
+	if(this->keyFramesCompressed)
+		((void (*)(void*))(*(RwEngineInst + 0x4d)))(this->keyFramesCompressed);
 }
 
 void

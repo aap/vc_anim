@@ -75,7 +75,7 @@ CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float delt
 	isPartial = !!(anim->flags & 0x10);
 	void *next;
 	CAnimBlendAssociation *found = NULL, *movementAnim = NULL;
-	for(next = clumpData->blendAssociation; next; next = *(void**)next){
+	for(next = clumpData->nextAssoc; next; next = *(void**)next){
 		anim = (CAnimBlendAssociation*)((void**)next - 1);
 		if(isMovement && (anim->flags & 0x20))
 			movementAnim = anim;
@@ -108,11 +108,11 @@ CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float delt
 			found->Start(0.0f);
 
 		void *tmp = &found->next;
-		if(clumpData->blendAssociation)
-			*((void**)clumpData->blendAssociation + 1) = tmp;
-		*(void**)tmp = clumpData->blendAssociation;
+		if(clumpData->nextAssoc)
+			*((void**)clumpData->nextAssoc + 1) = tmp;
+		*(void**)tmp = clumpData->nextAssoc;
 		found->prev = clumpData;
-		clumpData->blendAssociation = tmp;
+		clumpData->nextAssoc = tmp;
 
 		if(!removePrevAnim && !isPartial){
 			found->blendAmount = 1.0f;
@@ -134,7 +134,7 @@ CAnimManager::AddAnimation(RpClump *clump, int groupId, int animId)
 	if (anim->flags & 0x20){
 		CAnimBlendAssociation *syncanim = NULL;
 		void *next;
-		for(next = clumpData->blendAssociation; next; next = *(void**)next){
+		for(next = clumpData->nextAssoc; next; next = *(void**)next){
 			syncanim = (CAnimBlendAssociation*)((void**)next - 1);
 			if(syncanim->flags & 0x20)
 				break;
@@ -149,11 +149,11 @@ CAnimManager::AddAnimation(RpClump *clump, int groupId, int animId)
 
 	// insert into linked list;
 	void *tmp = &anim->next;
-	if(clumpData->blendAssociation)
-		*((void**)clumpData->blendAssociation + 1) = tmp;
-	*(void**)tmp = clumpData->blendAssociation;
+	if(clumpData->nextAssoc)
+		*((void**)clumpData->nextAssoc + 1) = tmp;
+	*(void**)tmp = clumpData->nextAssoc;
 	anim->prev = clumpData;
-	clumpData->blendAssociation = tmp;
+	clumpData->nextAssoc = tmp;
 	return anim;
 }
 

@@ -83,6 +83,7 @@
   <ItemGroup>
     <ClCompile Include="CAnimBlendAssocGroup.cpp" />
     <ClCompile Include="CAnimBlendAssociation.cpp" />
+    <ClCompile Include="CAnimBlendClumpData.cpp" />
     <ClCompile Include="CAnimBlendHierarchy.cpp" />
     <ClCompile Include="CAnimBlendNode.cpp" />
     <ClCompile Include="CAnimBlendSequence.cpp" />
