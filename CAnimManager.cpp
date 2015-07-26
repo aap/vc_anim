@@ -58,10 +58,128 @@ CAnimManager::RemoveLastAnimFile(void)
 	CAnimManager::ms_aAnimBlocks[CAnimManager::ms_numAnimBlocks].isLoaded = 0;
 }
 
-WRAPPER void
-CAnimManager::LoadAnimFile(RwStream *stream, bool a2, const char (*a3)[32])
+void
+CAnimManager::LoadAnimFile(RwStream *stream, bool, const char (*names)[32])
 {
-	EAXJMP(0x404A50);
+	#define ROUNDSIZE(x) if((x) & 3) (x) += 4 - ((x)&3)
+	struct IfpHeader {
+		char ident[4];
+		RwUInt32 size;
+	};
+	IfpHeader anpk, info, name, dgan, cpan, anim;
+	char buf[256];
+	float *fbuf = (float*)buf;
+	RwStreamRead(stream, &anpk, sizeof(anpk));
+	ROUNDSIZE(anpk.size);
+	RwStreamRead(stream, &info, sizeof(info));
+	ROUNDSIZE(info.size);
+	RwStreamRead(stream, buf, info.size);
+
+	CAnimBlock *animBlock = NULL;
+	for(int i = 0; i < CAnimManager::ms_numAnimBlocks; i++)
+		if(lcstrcmp(CAnimManager::ms_aAnimBlocks[i].name, buf+4) == 0){
+			animBlock = &CAnimManager::ms_aAnimBlocks[i];
+			break;
+		}
+	if(animBlock){
+		if(animBlock->numAnims == 0){
+			animBlock->numAnims = *(int*)buf;
+			animBlock->animIndex = CAnimManager::ms_numAnimations;
+		}
+	}else{
+		animBlock = &CAnimManager::ms_aAnimBlocks[CAnimManager::ms_numAnimBlocks++];
+		strncpy(animBlock->name, buf+4, 20);
+		animBlock->numAnims = *(int*)buf;
+		animBlock->animIndex = CAnimManager::ms_numAnimations;
+	}
+
+	animBlock->isLoaded = 1;
+	CAnimBlendHierarchy *hier = &CAnimManager::ms_aAnimations[animBlock->animIndex];
+	for(int i = 0; i < animBlock->numAnims; i++, hier++){
+		RwStreamRead(stream, &name, sizeof(name));
+		ROUNDSIZE(name.size);
+		RwStreamRead(stream, buf, name.size);
+		hier->SetName(buf);
+		// wtf?
+		int compressed = 0;
+		if(names)
+			while((*names)[0])
+				if(lcstrcmp(*names++, hier->name) == 0)
+					compressed = 0;
+		hier->loadSpecial = compressed;
+		hier->compressed = 0;
+
+		RwStreamRead(stream, &dgan, sizeof(dgan));
+		ROUNDSIZE(dgan.size);
+		RwStreamRead(stream, &info, sizeof(info));
+		ROUNDSIZE(info.size);
+		RwStreamRead(stream, buf, info.size);
+		hier->numSequences = *(int*)buf;
+		void *mem = gta_nw(sizeof(CAnimBlendSequence)*hier->numSequences + 8);
+		hier->blendSequences = (CAnimBlendSequence*)construct_array(mem, &CAnimBlendSequence::ctor, &CAnimBlendSequence::dtor,
+		                                                            sizeof(CAnimBlendSequence), hier->numSequences);
+		CAnimBlendSequence *seq = hier->blendSequences;
+		for(int j = 0; j < hier->numSequences; j++, seq++){
+			RwStreamRead(stream, &cpan, sizeof(cpan));
+			ROUNDSIZE(dgan.size);
+			RwStreamRead(stream, &anim, sizeof(anim));
+			ROUNDSIZE(anim.size);
+			RwStreamRead(stream, buf, anim.size);
+			if(anim.size == 44)
+				seq->SetBoneTag(*(int*)(buf+40));
+			seq->SetName(buf);
+			int numFrames = *(int*)(buf+28);
+			if(numFrames){
+				RwStreamRead(stream, &info, sizeof(info));
+				if(strncmp(info.ident, "KR00", 4) == 0){
+					seq->SetNumFrames(numFrames, 0, compressed);
+					RFrame *frame = (RFrame*)(compressed ? GETCFRAME(seq, 0) : GETFRAME(seq, 0));
+					for(int k = 0; k < numFrames; k++, frame++){
+						RwStreamRead(stream, buf, 0x14);
+						frame->rot.x = -fbuf[0];
+						frame->rot.y = -fbuf[1];
+						frame->rot.z = -fbuf[2];
+						frame->rot.w = fbuf[3];
+						frame->time = compressed ? 60.0f*fbuf[4]+0.5f : fbuf[4];
+					}
+				}else if(strncmp(info.ident, "KRT0", 4) == 0){
+					seq->SetNumFrames(numFrames, 1, compressed);
+					RTFrame *frame = (RTFrame*)(compressed ? GETCFRAME(seq, 0) : GETFRAME(seq, 0));
+					for(int k = 0; k < numFrames; k++, frame++){
+						RwStreamRead(stream, buf, 0x20);
+						frame->rot.x = -fbuf[0];
+						frame->rot.y = -fbuf[1];
+						frame->rot.z = -fbuf[2];
+						frame->rot.w = fbuf[3];
+						frame->pos.x = fbuf[4];
+						frame->pos.y = fbuf[5];
+						frame->pos.z = fbuf[6];
+						frame->time = compressed ? 60.0f*fbuf[7]+0.5f : fbuf[7];
+					}
+				}else if(strncmp(info.ident, "KRTS", 4) == 0){
+					seq->SetNumFrames(numFrames, 1, compressed);
+					RTFrame *frame = (RTFrame*)(compressed ? GETCFRAME(seq, 0) : GETFRAME(seq, 0));
+					for(int k = 0; k < numFrames; k++, frame++){
+						RwStreamRead(stream, buf, 0x2C);
+						frame->rot.x = -fbuf[0];
+						frame->rot.y = -fbuf[1];
+						frame->rot.z = -fbuf[2];
+						frame->rot.w = fbuf[3];
+						frame->pos.x = fbuf[4];
+						frame->pos.y = fbuf[5];
+						frame->pos.z = fbuf[6];
+						frame->time = compressed ? 60.0f*fbuf[10]+0.5f : fbuf[10];
+					}
+				}
+			}
+		}
+		if(!compressed){
+			hier->RemoveQuaternionFlips();
+			hier->CalcTotalTime();
+		}
+	}
+	CAnimManager::ms_numAnimations += animBlock->numAnims;
+	#undef ROUNDSIZE
 }
 
 CAnimBlendAssociation*

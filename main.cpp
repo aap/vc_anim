@@ -11,12 +11,12 @@ WRAPPER void *gta_nw(int) { EAXJMP(0x6403B0); }
 
 WRAPPER RwStream *RwStreamOpen(RwStreamType, RwStreamAccessType, const void *) { EAXJMP(0x6459C0); }
 WRAPPER RwBool RwStreamClose(RwStream*, void*) { EAXJMP(0x6458F0); }
+WRAPPER RwUInt32 RwStreamRead(RwStream*, void*, RwUInt32) { EAXJMP(0x6454B0); }
 WRAPPER RpClump *RpClumpForAllAtomics(RpClump*, RpAtomicCallBack, void*) { EAXJMP(0x640D00); }
 WRAPPER RwBool RpClumpDestroy(RpClump*) { EAXJMP(0x641430); }
-WRAPPER void CQuaternion::Slerp(CQuaternion&, CQuaternion&, float, float, float) { EAXJMP(0x4DFBE0); }
-
 
 WRAPPER void *GetModelFromName(char *name) { EAXJMP(0x4014D0); }
+WRAPPER void CQuaternion::Slerp(CQuaternion&, CQuaternion&, float, float, float) { EAXJMP(0x4DFBE0); }
 WRAPPER int IsClumpSkinned(RpClump*) { EAXJMP(0x57F580); }
 WRAPPER RpAtomic *AtomicRemoveAnimFromSkinCB(RpAtomic*, void*) { EAXJMP(0x489750); }
 
@@ -79,6 +79,7 @@ patch10(void)
 	MemoryVP::InjectHook(0x404980, CAnimManager::AddAnimBlockRef, PATCH_JUMP);
 	MemoryVP::InjectHook(0x404990, CAnimManager::RemoveAnimBlock, PATCH_JUMP);
 	MemoryVP::InjectHook(0x404A00, CAnimManager::RemoveLastAnimFile, PATCH_JUMP);
+	MemoryVP::InjectHook(0x404A50, CAnimManager::LoadAnimFile, PATCH_JUMP);
 	MemoryVP::InjectHook(0x4053A0, CAnimManager::RegisterAnimBlock, PATCH_JUMP);
 	MemoryVP::InjectHook(0x405430, CAnimManager::CreateAnimAssocGroups, PATCH_JUMP);
 	MemoryVP::InjectHook(0x4055E0, CAnimManager::LoadAnimFiles, PATCH_JUMP);

@@ -180,7 +180,7 @@ public:
 	int numAnims;
 };
 
-
+// complete
 class CAnimBlendNode
 {
 public:
@@ -309,7 +309,7 @@ struct AnimAssocDefinition
 	} *animInfoList;
 };
 
-// almost complete (LoadAnimFile() still missing)
+// almost complete
 class CAnimManager
 {
 public:

@@ -44,9 +44,6 @@ CAnimBlendAssociation::SyncAnimation(CAnimBlendAssociation *anim)
 	this->SetCurrentTime(anim->currentTime / anim->hierarchy->totalLength * this->hierarchy->totalLength);
 }
 
-
-//WRAPPER void CAnimBlendAssociation::SetCurrentTime(float time) { EAXJMP(0x401770); }
-
 void
 CAnimBlendAssociation::SetCurrentTime(float time)
 {
