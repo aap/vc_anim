@@ -160,9 +160,12 @@ patch10(void)
 	MemoryVP::InjectHook(0x405B80, CAnimManager::Shutdown, PATCH_JUMP);
 	MemoryVP::InjectHook(0x405BF0, CAnimManager::Initialise, PATCH_JUMP);
 
+	MemoryVP::InjectHook(0x4042D0, FrameUpdateCallBackSkinned, PATCH_JUMP);
+	MemoryVP::InjectHook(0x403DF0, FrameUpdateCallBackSkinnedWithVelocityExtraction, PATCH_JUMP);
+
 	MemoryVP::InjectHook(0x402E20, (CAnimBlendAssociation*(*)(RpClump*))RpAnimBlendClumpGetFirstAssociation, PATCH_JUMP);
 	MemoryVP::InjectHook(0x404600, RpAnimBlendClumpCheckKeyFrames, PATCH_JUMP);
-//	MemoryVP::InjectHook(0x404690, RpAnimBlendClumpUpdateAnimations, PATCH_JUMP);
+	MemoryVP::InjectHook(0x404690, RpAnimBlendClumpUpdateAnimations, PATCH_JUMP);
 	MemoryVP::InjectHook(0x407520, RpAnimBlendAllocateData, PATCH_JUMP);
 	MemoryVP::InjectHook(0x407560, RpAnimBlendClumpDestroy, PATCH_JUMP);
 	MemoryVP::InjectHook(0x4075A0, (CAnimBlendAssociation*(*)(CAnimBlendAssociation*,uint))RpAnimBlendGetNextAssociation, PATCH_JUMP);

@@ -81,6 +81,9 @@ struct AnimBlendFrameData;
 class CAnimBlendClumpData;
 class CAnimManager;
 
+void FrameUpdateCallBackSkinned(AnimBlendFrameData *frame, void *arg);
+void FrameUpdateCallBackSkinnedWithVelocityExtraction(AnimBlendFrameData *frame, CAnimBlendNode **nodes);
+
 extern int &ClumpOffset;
 CAnimBlendAssociation *RpAnimBlendClumpGetFirstAssociation(RpClump *clump);
 void RpAnimBlendClumpCheckKeyFrames(AnimBlendFrameData *bones, CAnimBlendNode **nodes, int numBones);
@@ -305,7 +308,7 @@ public:
 	void *nextAssoc;			// pointer to CAnimBlendAssociation::next
 	void *prevAssoc;
 	int numFrames;
-	int d;		// ??
+	float *d;		// what's this exactly? some kind of pos delta for root bone animation i think
 	AnimBlendFrameData *frames;
 
 	void ForAllFrames(void (*cb)(AnimBlendFrameData*, void*), void *arg);
