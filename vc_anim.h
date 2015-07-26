@@ -9,6 +9,7 @@
 #include <rwcore.h>
 #include <rwplcore.h>
 #include <rpworld.h>
+#include <rpskin.h>
 #include <new>
 #include "MemoryMgr.h"
 
@@ -81,9 +82,28 @@ class CAnimBlendClumpData;
 class CAnimManager;
 
 extern int &ClumpOffset;
+CAnimBlendAssociation *RpAnimBlendClumpGetFirstAssociation(RpClump *clump);
+void RpAnimBlendClumpCheckKeyFrames(AnimBlendFrameData *bones, CAnimBlendNode **nodes, int numBones);
+void RpAnimBlendClumpUpdateAnimations(RpClump *clump, float timeDelta, bool doRender);
+void RpAnimBlendAllocateData(RpClump *clump);
+void RpAnimBlendClumpDestroy(RpClump *clump);
+CAnimBlendAssociation *RpAnimBlendGetNextAssociation(CAnimBlendAssociation *assoc, uint mask);
+CAnimBlendAssociation *RpAnimBlendGetNextAssociation(CAnimBlendAssociation *assoc);
+CAnimBlendAssociation *RpAnimBlendClumpGetFirstAssociation(RpClump *clump, uint mask);
+CAnimBlendAssociation *RpAnimBlendClumpGetMainPartialAssociation_N(RpClump *clump, int n);
+CAnimBlendAssociation *RpAnimBlendClumpGetMainAssociation_N(RpClump *clump, int n);
+CAnimBlendAssociation *RpAnimBlendClumpGetMainPartialAssociation(RpClump *clump);
+CAnimBlendAssociation *RpAnimBlendClumpGetMainAssociation(RpClump *clump, CAnimBlendAssociation **, float *);
+CAnimBlendAssociation *RpAnimBlendClumpGetAssociation(RpClump *clump, uint mask);
+void RpAnimBlendClumpRemoveAssociations(RpClump *clump, uint mask);
+void RpAnimBlendClumpRemoveAllAssociations(RpClump *clump);
+void RpAnimBlendClumpSetBlendDeltas(RpClump *clump, uint mask, float delta);
+bool RpAnimBlendClumpIsInitialized(RpClump *clump);
 void RpAnimBlendClumpInit(RpClump *);
-AnimBlendFrameData *RpAnimBlendClumpFindFrame(RpClump *clump, char *name);
-AnimBlendFrameData *RpAnimBlendClumpFindBone(RpClump *clump, int tag);
+void RpAnimBlendClumpInitSkinned(RpClump *);
+void RpAnimBlendClumpFillFrameArray(RpClump *clump, AnimBlendFrameData **frames);
+AnimBlendFrameData *RpAnimBlendClumpFindFrame(RpClump *clump, const char *name);
+AnimBlendFrameData *RpAnimBlendClumpFindBone(RpClump *clump, uint tag);
 
 struct RFrame {
 	CQuaternion rot;

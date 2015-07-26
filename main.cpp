@@ -12,8 +12,13 @@ WRAPPER void *gta_nw(int) { EAXJMP(0x6403B0); }
 WRAPPER RwStream *RwStreamOpen(RwStreamType, RwStreamAccessType, const void *) { EAXJMP(0x6459C0); }
 WRAPPER RwBool RwStreamClose(RwStream*, void*) { EAXJMP(0x6458F0); }
 WRAPPER RwUInt32 RwStreamRead(RwStream*, void*, RwUInt32) { EAXJMP(0x6454B0); }
+WRAPPER RwFrame *RwFrameForAllChildren(RwFrame*, RwFrameCallBack, void*) { EAXJMP(0x645060); }
+WRAPPER RwFrame *RwFrameUpdateObjects(RwFrame*) { EAXJMP(0x644D00); }
 WRAPPER RpClump *RpClumpForAllAtomics(RpClump*, RpAtomicCallBack, void*) { EAXJMP(0x640D00); }
 WRAPPER RwBool RpClumpDestroy(RpClump*) { EAXJMP(0x641430); }
+WRAPPER RwInt32 RpHAnimIDGetIndex(RpHAnimHierarchy*, RwInt32) { EAXJMP(0x646390); }
+WRAPPER RpSkin *RpSkinGeometryGetSkin(RpGeometry*) { EAXJMP(0x649960); }
+WRAPPER RwUInt32 RpSkinGetNumBones(RpSkin*) { EAXJMP(0x6499C0); }
 
 WRAPPER void *GetModelFromName(char *name) { EAXJMP(0x4014D0); }
 WRAPPER void CQuaternion::Slerp(CQuaternion&, CQuaternion&, float, float, float) { EAXJMP(0x4DFBE0); }
@@ -73,29 +78,6 @@ patch10(void)
 	}
 
 	// fucking hell
-	MemoryVP::InjectHook(0x404930, CAnimManager::GetNumRefsToAnimBlock, PATCH_JUMP);
-	MemoryVP::InjectHook(0x404940, CAnimManager::RemoveAnimBlockRefWithoutDelete, PATCH_JUMP);
-	MemoryVP::InjectHook(0x404950, CAnimManager::RemoveAnimBlockRef, PATCH_JUMP);
-	MemoryVP::InjectHook(0x404980, CAnimManager::AddAnimBlockRef, PATCH_JUMP);
-	MemoryVP::InjectHook(0x404990, CAnimManager::RemoveAnimBlock, PATCH_JUMP);
-	MemoryVP::InjectHook(0x404A00, CAnimManager::RemoveLastAnimFile, PATCH_JUMP);
-	MemoryVP::InjectHook(0x404A50, CAnimManager::LoadAnimFile, PATCH_JUMP);
-	MemoryVP::InjectHook(0x4053A0, CAnimManager::RegisterAnimBlock, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405430, CAnimManager::CreateAnimAssocGroups, PATCH_JUMP);
-	MemoryVP::InjectHook(0x4055E0, CAnimManager::LoadAnimFiles, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405640, CAnimManager::BlendAnimation, PATCH_JUMP);
-	MemoryVP::InjectHook(0x4058B0, CAnimManager::AddAnimation, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405940, (CAnimBlendAssociation *(*)(int, const char*))CAnimManager::GetAnimAssociation, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405960, (CAnimBlendAssociation *(*)(int, int))CAnimManager::GetAnimAssociation, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405980, CAnimManager::GetAnimGroupName, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405990, CAnimManager::GetAnimation, PATCH_JUMP);
-	MemoryVP::InjectHook(0x4059E0, CAnimManager::GetAnimationBlockIndex, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405A50, CAnimManager::GetAnimationBlock, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405AA0, CAnimManager::RemoveFromUncompressedCache, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405AC0, CAnimManager::UncompressAnimation, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405B80, CAnimManager::Shutdown, PATCH_JUMP);
-	MemoryVP::InjectHook(0x405BF0, CAnimManager::Initialise, PATCH_JUMP);
-
 	MemoryVP::InjectHook(0x401010, static_cast<CAnimBlendAssociation*(CAnimBlendAssocGroup::*)(uint)>(&CAnimBlendAssocGroup::CopyAnimation), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401050, static_cast<CAnimBlendAssociation*(CAnimBlendAssocGroup::*)(const char*)>(&CAnimBlendAssocGroup::CopyAnimation), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401180, static_cast<CAnimBlendAssociation*(CAnimBlendAssocGroup::*)(uint)>(&CAnimBlendAssocGroup::GetAnimation), PATCH_JUMP);
@@ -122,6 +104,11 @@ patch10(void)
 	MemoryVP::InjectHook(0x402C90, (&CAnimBlendAssociation::UpdateBlend), PATCH_JUMP);
 	MemoryVP::InjectHook(0x402D60, (&CAnimBlendAssociation::UpdateTime), PATCH_JUMP);
 
+	MemoryVP::InjectHook(0x401B90, (&CAnimBlendClumpData::ForAllFrames), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401BC0, (&CAnimBlendClumpData::SetNumberOfBones), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401C00, (&CAnimBlendClumpData::dtor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x401C40, (&CAnimBlendClumpData::ctor), PATCH_JUMP);
+
 	MemoryVP::InjectHook(0x401C70, (&CAnimBlendHierarchy::RemoveUncompressedData), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401C80, (&CAnimBlendHierarchy::Uncompress), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401CD0, (&CAnimBlendHierarchy::RemoveQuaternionFlips), PATCH_JUMP);
@@ -131,14 +118,6 @@ patch10(void)
 	MemoryVP::InjectHook(0x401F00, (&CAnimBlendHierarchy::Shutdown), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401F40, (&CAnimBlendHierarchy::dtor), PATCH_JUMP);
 	// ctor is called before we're attached (static init)
-
-	MemoryVP::InjectHook(0x402A20, (&CAnimBlendSequence::RemoveQuaternionFlips), PATCH_JUMP);
-	MemoryVP::InjectHook(0x402AF0, (&CAnimBlendSequence::SetNumFrames), PATCH_JUMP);
-	MemoryVP::InjectHook(0x402B80, (&CAnimBlendSequence::SetBoneTag), PATCH_JUMP);
-	MemoryVP::InjectHook(0x402B90, (&CAnimBlendSequence::SetName), PATCH_JUMP);
-	MemoryVP::InjectHook(0x402BB0, (&CAnimBlendSequence::dtor), PATCH_JUMP);
-	MemoryVP::InjectHook(0x402BF0, (&CAnimBlendSequence::ctor), PATCH_JUMP);
-	MemoryVP::InjectHook(0x402C20, (&CAnimBlendSequence::dtor2), PATCH_JUMP);
 
 	MemoryVP::InjectHook(0x401FB0, (&CAnimBlendNode::CalcDeltasCompressed), PATCH_JUMP);
 	MemoryVP::InjectHook(0x4021C0, (&CAnimBlendNode::SetupKeyFrameCompressed), PATCH_JUMP);
@@ -150,10 +129,59 @@ patch10(void)
 	MemoryVP::InjectHook(0x402770, (&CAnimBlendNode::Update), PATCH_JUMP);
 	MemoryVP::InjectHook(0x402A00, (&CAnimBlendNode::Init), PATCH_JUMP);
 
-	MemoryVP::InjectHook(0x401B90, (&CAnimBlendClumpData::ForAllFrames), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401BC0, (&CAnimBlendClumpData::SetNumberOfBones), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401C00, (&CAnimBlendClumpData::dtor), PATCH_JUMP);
-	MemoryVP::InjectHook(0x401C40, (&CAnimBlendClumpData::ctor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402A20, (&CAnimBlendSequence::RemoveQuaternionFlips), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402AF0, (&CAnimBlendSequence::SetNumFrames), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402B80, (&CAnimBlendSequence::SetBoneTag), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402B90, (&CAnimBlendSequence::SetName), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402BB0, (&CAnimBlendSequence::dtor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402BF0, (&CAnimBlendSequence::ctor), PATCH_JUMP);
+	MemoryVP::InjectHook(0x402C20, (&CAnimBlendSequence::dtor2), PATCH_JUMP);
+
+	MemoryVP::InjectHook(0x404930, CAnimManager::GetNumRefsToAnimBlock, PATCH_JUMP);
+	MemoryVP::InjectHook(0x404940, CAnimManager::RemoveAnimBlockRefWithoutDelete, PATCH_JUMP);
+	MemoryVP::InjectHook(0x404950, CAnimManager::RemoveAnimBlockRef, PATCH_JUMP);
+	MemoryVP::InjectHook(0x404980, CAnimManager::AddAnimBlockRef, PATCH_JUMP);
+	MemoryVP::InjectHook(0x404990, CAnimManager::RemoveAnimBlock, PATCH_JUMP);
+	MemoryVP::InjectHook(0x404A00, CAnimManager::RemoveLastAnimFile, PATCH_JUMP);
+	MemoryVP::InjectHook(0x404A50, CAnimManager::LoadAnimFile, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4053A0, CAnimManager::RegisterAnimBlock, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405430, CAnimManager::CreateAnimAssocGroups, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4055E0, CAnimManager::LoadAnimFiles, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405640, CAnimManager::BlendAnimation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4058B0, CAnimManager::AddAnimation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405940, (CAnimBlendAssociation *(*)(int, const char*))CAnimManager::GetAnimAssociation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405960, (CAnimBlendAssociation *(*)(int, int))CAnimManager::GetAnimAssociation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405980, CAnimManager::GetAnimGroupName, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405990, CAnimManager::GetAnimation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4059E0, CAnimManager::GetAnimationBlockIndex, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405A50, CAnimManager::GetAnimationBlock, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405AA0, CAnimManager::RemoveFromUncompressedCache, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405AC0, CAnimManager::UncompressAnimation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405B80, CAnimManager::Shutdown, PATCH_JUMP);
+	MemoryVP::InjectHook(0x405BF0, CAnimManager::Initialise, PATCH_JUMP);
+
+	MemoryVP::InjectHook(0x402E20, (CAnimBlendAssociation*(*)(RpClump*))RpAnimBlendClumpGetFirstAssociation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x404600, RpAnimBlendClumpCheckKeyFrames, PATCH_JUMP);
+//	MemoryVP::InjectHook(0x404690, RpAnimBlendClumpUpdateAnimations, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407520, RpAnimBlendAllocateData, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407560, RpAnimBlendClumpDestroy, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4075A0, (CAnimBlendAssociation*(*)(CAnimBlendAssociation*,uint))RpAnimBlendGetNextAssociation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4075D0, (CAnimBlendAssociation*(*)(CAnimBlendAssociation*))RpAnimBlendGetNextAssociation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4075F0, (CAnimBlendAssociation*(*)(RpClump*, uint))RpAnimBlendClumpGetFirstAssociation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407620, RpAnimBlendClumpGetMainPartialAssociation_N, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407660, RpAnimBlendClumpGetMainAssociation_N, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4076A0, RpAnimBlendClumpGetMainPartialAssociation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4076F0, RpAnimBlendClumpGetMainAssociation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407780, RpAnimBlendClumpGetAssociation, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4077B0, RpAnimBlendClumpRemoveAssociations, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407800, RpAnimBlendClumpRemoveAllAssociations, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407830, RpAnimBlendClumpSetBlendDeltas, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407870, RpAnimBlendClumpIsInitialized, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407890, RpAnimBlendClumpInit, PATCH_JUMP);
+	MemoryVP::InjectHook(0x4079A0, RpAnimBlendClumpInitSkinned, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407AC0, RpAnimBlendClumpFillFrameArray, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407B60, RpAnimBlendClumpFindBone, PATCH_JUMP);
+	MemoryVP::InjectHook(0x407BB0, RpAnimBlendClumpFindFrame, PATCH_JUMP);
 }
 
 BOOL WINAPI

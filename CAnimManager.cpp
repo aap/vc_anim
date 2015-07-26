@@ -94,8 +94,9 @@ CAnimManager::LoadAnimFile(RwStream *stream, bool, const char (*names)[32])
 	}
 
 	animBlock->isLoaded = 1;
-	CAnimBlendHierarchy *hier = &CAnimManager::ms_aAnimations[animBlock->animIndex];
-	for(int i = 0; i < animBlock->numAnims; i++, hier++){
+	int animIndex = animBlock->animIndex;
+	for(int i = 0; i < animBlock->numAnims; i++){
+		CAnimBlendHierarchy *hier = &CAnimManager::ms_aAnimations[animIndex++];
 		RwStreamRead(stream, &name, sizeof(name));
 		ROUNDSIZE(name.size);
 		RwStreamRead(stream, buf, name.size);
@@ -178,7 +179,8 @@ CAnimManager::LoadAnimFile(RwStream *stream, bool, const char (*names)[32])
 			hier->CalcTotalTime();
 		}
 	}
-	CAnimManager::ms_numAnimations += animBlock->numAnims;
+	if(animIndex > CAnimManager::ms_numAnimations)
+		CAnimManager::ms_numAnimations = animIndex;
 	#undef ROUNDSIZE
 }
 
