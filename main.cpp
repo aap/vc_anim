@@ -9,6 +9,7 @@ WRAPPER void RwFreeAlign(void*) { EAXJMP(0x5805C0); }
 WRAPPER void gtadelete(void*) { EAXJMP(0x6428B0); }
 WRAPPER void *gta_nw(int) { EAXJMP(0x6403B0); }
 
+WRAPPER RwMatrix *RwMatrixUpdate(RwMatrix * matrix) { EAXJMP(0x6437B0); }
 WRAPPER RwStream *RwStreamOpen(RwStreamType, RwStreamAccessType, const void *) { EAXJMP(0x6459C0); }
 WRAPPER RwBool RwStreamClose(RwStream*, void*) { EAXJMP(0x6458F0); }
 WRAPPER RwUInt32 RwStreamRead(RwStream*, void*, RwUInt32) { EAXJMP(0x6454B0); }
@@ -22,6 +23,7 @@ WRAPPER RwUInt32 RpSkinGetNumBones(RpSkin*) { EAXJMP(0x6499C0); }
 
 WRAPPER void *GetModelFromName(char *name) { EAXJMP(0x4014D0); }
 WRAPPER void CQuaternion::Slerp(CQuaternion&, CQuaternion&, float, float, float) { EAXJMP(0x4DFBE0); }
+WRAPPER void CQuaternion::Get(RwMatrix *mat) { EAXJMP(0x4DFD30); }
 WRAPPER int IsClumpSkinned(RpClump*) { EAXJMP(0x57F580); }
 WRAPPER RpAtomic *AtomicRemoveAnimFromSkinCB(RpAtomic*, void*) { EAXJMP(0x489750); }
 
@@ -159,9 +161,6 @@ patch10(void)
 	MemoryVP::InjectHook(0x405AC0, CAnimManager::UncompressAnimation, PATCH_JUMP);
 	MemoryVP::InjectHook(0x405B80, CAnimManager::Shutdown, PATCH_JUMP);
 	MemoryVP::InjectHook(0x405BF0, CAnimManager::Initialise, PATCH_JUMP);
-
-	MemoryVP::InjectHook(0x4042D0, FrameUpdateCallBackSkinned, PATCH_JUMP);
-	MemoryVP::InjectHook(0x403DF0, FrameUpdateCallBackSkinnedWithVelocityExtraction, PATCH_JUMP);
 
 	MemoryVP::InjectHook(0x402E20, (CAnimBlendAssociation*(*)(RpClump*))RpAnimBlendClumpGetFirstAssociation, PATCH_JUMP);
 	MemoryVP::InjectHook(0x404600, RpAnimBlendClumpCheckKeyFrames, PATCH_JUMP);

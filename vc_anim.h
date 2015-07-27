@@ -64,6 +64,7 @@ public:
 	float x, y, z, w;
 
 	void Slerp(CQuaternion &q1, CQuaternion &q2, float theta0, float theta1, float r);
+	void Get(RwMatrix *mat);
 };
 
 class CVector {
@@ -81,10 +82,12 @@ struct AnimBlendFrameData;
 class CAnimBlendClumpData;
 class CAnimManager;
 
+void FrameUpdateCallbackNoRender(AnimBlendFrameData *frame, void *arg);
+void FrameUpdateCallBackNonSkinned(AnimBlendFrameData *frame, void *arg);
 void FrameUpdateCallBackSkinned(AnimBlendFrameData *frame, void *arg);
-void FrameUpdateCallBackSkinnedWithVelocityExtraction(AnimBlendFrameData *frame, CAnimBlendNode **nodes);
 
 extern int &ClumpOffset;
+extern CAnimBlendClumpData *&pAnimClumpToUpdate;
 CAnimBlendAssociation *RpAnimBlendClumpGetFirstAssociation(RpClump *clump);
 void RpAnimBlendClumpCheckKeyFrames(AnimBlendFrameData *bones, CAnimBlendNode **nodes, int numBones);
 void RpAnimBlendClumpUpdateAnimations(RpClump *clump, float timeDelta, bool doRender);
