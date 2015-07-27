@@ -10,7 +10,6 @@ WRAPPER int ConvertPedNode2BoneTag(int node) { EAXJMP(0x405DE0); }
 WRAPPER int CVisibilityPlugins__GetFrameHierarchyId(RwFrame*) { EAXJMP(0x581810); }
 
 WRAPPER void FrameUpdateCallbackNoRender(AnimBlendFrameData *frame, void *arg) { EAXJMP(0x4042A0); }
-//WRAPPER void FrameUpdateCallBackSkinned(AnimBlendFrameData *frame, void *arg) { EAXJMP(0x4042D0); }
 WRAPPER void FrameUpdateCallBackNonSkinned(AnimBlendFrameData *frame, void *arg) { EAXJMP(0x403700); }
 
 int &ClumpOffset = *(int*)0x978798;
@@ -40,10 +39,6 @@ RpAnimBlendClumpCheckKeyFrames(AnimBlendFrameData *bones, CAnimBlendNode **nodes
 
 WRAPPER void
 FrameUpdateCallBackSkinnedWith3dVelocityExtraction(AnimBlendFrameData *frame, CAnimBlendNode **nodes) { EAXJMP(0x4039D0); }
-/*
-WRAPPER void
-FrameUpdateCallBackSkinnedWithVelocityExtraction(AnimBlendFrameData *frame, CAnimBlendNode **nodes) { EAXJMP(0x403DF0); }
-*/
 
 void
 FrameUpdateCallBackSkinnedWithVelocityExtraction(AnimBlendFrameData *frame, CAnimBlendNode **nodes)
@@ -254,26 +249,25 @@ RpAnimBlendClumpUpdateAnimations(RpClump *clump, float timeDelta, bool doRender)
 	float totalBlend = 0.0f;
 	pAnimClumpToUpdate = clumpData;
 
-	CAnimBlendNode *nodes[40];
+	CAnimBlendNode *nodes[12];
 	int j = 0;
 	nodes[0] = 0;
-	for(void *link = clumpData->nextAssoc; link; link = *(void**)link){
+	void *next;
+	for(void *link = clumpData->nextAssoc; link; link = next){
 		CAnimBlendAssociation *a = (CAnimBlendAssociation*)((void**)link - 1);
-		if(a->UpdateBlend(timeDelta))
-			if(a->hierarchy->blendSequences){
-				CAnimManager::UncompressAnimation(a->hierarchy);
-				if(j < 11)
-					nodes[j++ + 1] = a->GetNode(0);
-				if(a->flags & CAnimBlendAssociation::Movement){
-					totalLength += a->hierarchy->totalLength / a->speed * a->blendAmount;
-					totalBlend += a->blendAmount;
-				}else
-					nodes[0] = (CAnimBlendNode*)1;
-			}
+		// have to get next pointer before calling UpdateBlend()
+		next = *(void**)link;
+		if(!a->UpdateBlend(timeDelta) || a->hierarchy->blendSequences == NULL)
+			continue;
+		CAnimManager::UncompressAnimation(a->hierarchy);
+		if(j < 11)
+			nodes[++j] = a->GetNode(0);
+		if(a->flags & CAnimBlendAssociation::Movement){
+			totalLength += a->hierarchy->totalLength / a->speed * a->blendAmount;
+			totalBlend += a->blendAmount;
+		}else
+			nodes[0] = (CAnimBlendNode*)1;
 	}
-
-	if(!nodes[1] || !j)
-		_asm int 3
 
 	for(void *link = clumpData->nextAssoc; link; link = *(void**)link){
 		CAnimBlendAssociation *a = (CAnimBlendAssociation*)((void**)link - 1);
@@ -287,15 +281,11 @@ RpAnimBlendClumpUpdateAnimations(RpClump *clump, float timeDelta, bool doRender)
 		}
 	}
 
-	nodes[j + 1] = NULL;
+	nodes[++j] = NULL;
 	if(doRender){
 		if(clumpData->frames[0].flag & CAnimBlendAssociation::Movement)
 			RpAnimBlendClumpCheckKeyFrames(clumpData->frames, nodes, clumpData->numFrames);
-		if(IsClumpSkinned(clump))
-			clumpData->ForAllFrames(FrameUpdateCallBackSkinned, nodes);
-		else
-			clumpData->ForAllFrames(FrameUpdateCallBackNonSkinned, nodes);
-//		clumpData->ForAllFrames(IsClumpSkinned(clump) ? FrameUpdateCallBackSkinned : FrameUpdateCallBackNonSkinned, nodes);
+		clumpData->ForAllFrames(IsClumpSkinned(clump) ? FrameUpdateCallBackSkinned : FrameUpdateCallBackNonSkinned, nodes);
 		clumpData->frames->flag &= 0xDF;
 	}else{
 		clumpData->ForAllFrames(FrameUpdateCallbackNoRender, nodes);
