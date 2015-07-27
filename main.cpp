@@ -10,6 +10,7 @@ WRAPPER void gtadelete(void*) { EAXJMP(0x6428B0); }
 WRAPPER void *gta_nw(int) { EAXJMP(0x6403B0); }
 
 WRAPPER RwMatrix *RwMatrixUpdate(RwMatrix * matrix) { EAXJMP(0x6437B0); }
+WRAPPER RwMatrix *RwMatrixInvert(RwMatrix*, const RwMatrix*) { EAXJMP(0x643F40); }
 WRAPPER RwStream *RwStreamOpen(RwStreamType, RwStreamAccessType, const void *) { EAXJMP(0x6459C0); }
 WRAPPER RwBool RwStreamClose(RwStream*, void*) { EAXJMP(0x6458F0); }
 WRAPPER RwUInt32 RwStreamRead(RwStream*, void*, RwUInt32) { EAXJMP(0x6454B0); }
@@ -19,7 +20,9 @@ WRAPPER RpClump *RpClumpForAllAtomics(RpClump*, RpAtomicCallBack, void*) { EAXJM
 WRAPPER RwBool RpClumpDestroy(RpClump*) { EAXJMP(0x641430); }
 WRAPPER RwInt32 RpHAnimIDGetIndex(RpHAnimHierarchy*, RwInt32) { EAXJMP(0x646390); }
 WRAPPER RpSkin *RpSkinGeometryGetSkin(RpGeometry*) { EAXJMP(0x649960); }
+WRAPPER const RwMatrix *RpSkinGetSkinToBoneMatrices(RpSkin*) { EAXJMP(0x6499E0); }
 WRAPPER RwUInt32 RpSkinGetNumBones(RpSkin*) { EAXJMP(0x6499C0); }
+WRAPPER RwV3d *RwV3dTransformPoints(RwV3d*, const RwV3d*, RwInt32, const RwMatrix*) { EAXJMP(0x647160); }
 
 WRAPPER void *GetModelFromName(char *name) { EAXJMP(0x4014D0); }
 WRAPPER void CQuaternion::Slerp(CQuaternion&, CQuaternion&, float, float, float) { EAXJMP(0x4DFBE0); }

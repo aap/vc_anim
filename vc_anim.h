@@ -65,11 +65,35 @@ public:
 
 	void Slerp(CQuaternion &q1, CQuaternion &q2, float theta0, float theta1, float r);
 	void Get(RwMatrix *mat);
+	void Add(CQuaternion &q) {
+		this->x += q.x;
+		this->y += q.y;
+		this->z += q.z;
+		this->w += q.w;
+	};
+	void Sub(CQuaternion &q) {
+		this->x -= q.x;
+		this->y -= q.y;
+		this->z -= q.z;
+		this->w -= q.w;
+	};
+	void Mult(float r) {
+		this->x *= r;
+		this->y *= r;
+		this->z *= r;
+		this->w *= r;
+	}
 };
 
 class CVector {
 public:
 	float x, y, z;
+
+	void Add(CVector &v) {
+		this->x += v.x;
+		this->y += v.y;
+		this->z += v.z;
+	};
 };
 
 class CAnimBlendSequence;
@@ -87,7 +111,7 @@ void FrameUpdateCallBackNonSkinned(AnimBlendFrameData *frame, void *arg);
 void FrameUpdateCallBackSkinned(AnimBlendFrameData *frame, void *arg);
 
 extern int &ClumpOffset;
-extern CAnimBlendClumpData *&pAnimClumpToUpdate;
+extern CAnimBlendClumpData *&gpAnimBlendClump;
 CAnimBlendAssociation *RpAnimBlendClumpGetFirstAssociation(RpClump *clump);
 void RpAnimBlendClumpCheckKeyFrames(AnimBlendFrameData *bones, CAnimBlendNode **nodes, int numBones);
 void RpAnimBlendClumpUpdateAnimations(RpClump *clump, float timeDelta, bool doRender);
@@ -300,7 +324,10 @@ struct AnimBlendFrameData
 {
 	int flag;
 	RwV3d pos;
-	RwFrame *frame;
+	union {
+		RwFrame *frame;
+		RpHAnimKeyFrame *hanimframe;
+	};
 	int nodeID;
 };
 
@@ -335,7 +362,7 @@ struct AnimAssocDefinition
 	} *animInfoList;
 };
 
-// almost complete
+// complete
 class CAnimManager
 {
 public:
