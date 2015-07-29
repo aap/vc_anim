@@ -52,7 +52,7 @@ int
 lcstrcmp(const char *s1, const char *s2)
 {
 	int c1, c2;
-	while(*s1){
+	do{
 		c1 = *s1 == -1 ? -1 : charset[*s1];
 		c2 = *s2 == -1 ? -1 : charset[*s2];
 		if(c1 < c2)
@@ -61,7 +61,7 @@ lcstrcmp(const char *s1, const char *s2)
 			return 1;
 		s1++;
 		s2++;
-	}
+	}while(c1);
 	return 0;
 }
 
