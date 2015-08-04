@@ -191,18 +191,18 @@ CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float delt
 	int isMovement, isPartial;
 	CAnimBlendClumpData *clumpData = *RWPLUGINOFFSET(CAnimBlendClumpData*, clump, ClumpOffset);
 	CAnimBlendAssociation *anim = CAnimManager::ms_aAnimAssocGroups[groupId].GetAnimation(animId);
-	isMovement = !!(anim->flags & 0x20);
-	isPartial = !!(anim->flags & 0x10);
+	isMovement = !!(anim->flags & CAnimBlendAssociation::Movement);
+	isPartial = !!(anim->flags & CAnimBlendAssociation::Partial);
 	void *next;
 	CAnimBlendAssociation *found = NULL, *movementAnim = NULL;
 	for(next = clumpData->nextAssoc; next; next = *(void**)next){
 		anim = (CAnimBlendAssociation*)((void**)next - 1);
-		if(isMovement && (anim->flags & 0x20))
+		if(isMovement && (anim->flags & CAnimBlendAssociation::Movement))
 			movementAnim = anim;
 		if(anim->animId == animId)
 			found = anim;
 		else{
-			if(isPartial == !!(anim->flags & 0x10)){
+			if(isPartial == !!(anim->flags & CAnimBlendAssociation::Partial)){
 				if(anim->blendAmount <= 0.0f)
 					anim->blendDelta = -1.0f;
 				else{
@@ -221,7 +221,7 @@ CAnimManager::BlendAnimation(RpClump *clump, int groupId, int animId, float delt
 			found->Start(0.0f);
 	}else{
 		found = CAnimManager::ms_aAnimAssocGroups[groupId].CopyAnimation(animId);
-		if((found->flags & 0x20) && movementAnim){
+		if((found->flags & CAnimBlendAssociation::Movement) && movementAnim){
 			found->SyncAnimation(movementAnim);
 			found->flags |= 1;
 		}else

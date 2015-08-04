@@ -32,7 +32,7 @@ CAnimBlendHierarchy::RemoveQuaternionFlips(void)
 		this->blendSequences[i].RemoveQuaternionFlips();
 }
 
-WRAPPER void
+void
 CAnimBlendHierarchy::CalcTotalTimeCompressed(void)
 {
 	this->totalLength = 0.0f;
@@ -92,14 +92,14 @@ CAnimBlendHierarchy::dtor(void)
 	CAnimManager::RemoveFromUncompressedCache(this);
 	if(this->blendSequences)
 		destroy_array(this->blendSequences, &CAnimBlendSequence::dtor);
-	this->blendSequences = 0;
+	this->blendSequences = NULL;
 	this->numSequences = 0;
 	this->totalLength = 0.0f;
 }
 
 CAnimBlendHierarchy::CAnimBlendHierarchy(void)
 {
-	this->blendSequences = 0;
+	this->blendSequences = NULL;
 	this->numSequences = 0;
 	this->loadSpecial = 0;
 	this->compressed = 0;
