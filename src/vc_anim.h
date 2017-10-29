@@ -171,7 +171,6 @@ public:
 #define GETFRAME(seq, i) ((char*)(seq)->keyFrames + (((seq)->flag & 2) ? sizeof(RTFrame) : sizeof(RFrame))*(i))
 #define GETCFRAME(seq, i) ((char*)(seq)->keyFramesCompressed + (((seq)->flag & 2) ? sizeof(RTFrame) : sizeof(RFrame))*(i))
 
-// complete
 class CAnimBlendSequence
 {
 public:
@@ -195,7 +194,6 @@ public:
 	void dtor2(char flag);
 };
 
-// complete
 class CAnimBlendHierarchy
 {
 public:
@@ -230,7 +228,6 @@ public:
 	int numAnims;
 };
 
-// complete
 class CAnimBlendNode
 {
 public:
@@ -253,13 +250,14 @@ public:
 	void Init(void);
 };
 
-// complete
 class CAnimBlendAssociation
 {
 public:
+	// are these the same enum?
 	enum Flags {
 		NoRotation = 2,
 		NoTranslation = 4,
+
 		Flag8 = 8,
 		Partial = 0x10,
 		Movement = 0x20
@@ -291,8 +289,10 @@ public:
 	void SetCurrentTime(float time);
 	void Init(CAnimBlendAssociation&);
 	void Init(RpClump *clump, CAnimBlendHierarchy *anim);
+	void CopyForClump(CAnimBlendAssociation&, RpClump *clump);
 	CAnimBlendAssociation(void);
 	CAnimBlendAssociation(CAnimBlendAssociation&);
+	CAnimBlendAssociation(CAnimBlendAssociation&, RpClump *clump);	// custom
 	~CAnimBlendAssociation(void);
 	bool UpdateBlend(float f);
 	void UpdateTime(float f1, float f2);
@@ -301,7 +301,6 @@ public:
 	void dtor2(char flag);
 };
 
-// complete
 class CAnimBlendAssocGroup
 {
 public:
@@ -315,6 +314,7 @@ public:
 	CAnimBlendAssociation *GetAnimation(const char *name);
 	CAnimBlendAssociation *CopyAnimation(uint i);
 	CAnimBlendAssociation *CopyAnimation(const char *name);
+	CAnimBlendAssociation *CopyAnimation(uint i, RpClump *clump);	// custom
 	void CreateAssociations(const char *name, RpClump *clump, char **names, int numAnims);
 	void CreateAssociations(const char *name);
 	void DestroyAssociations(void);
@@ -334,7 +334,13 @@ struct AnimBlendFrameData
 	int nodeID;
 };
 
-// complete
+// It seems we can't extend the above struct because we haven't reversed all code that uses it
+struct FrameExt
+{
+	RwV3d pos;
+	RtQuat rot;
+};
+
 class CAnimBlendClumpData
 {
 public:
@@ -343,6 +349,7 @@ public:
 	int numFrames;
 	CVector *pedPosition;
 	AnimBlendFrameData *frames;
+	FrameExt *frameext;
 
 	void ForAllFrames(void (*cb)(AnimBlendFrameData*, void*), void *arg);
 	void SetNumberOfBones(int n);
@@ -365,7 +372,6 @@ struct AnimAssocDefinition
 	} *animInfoList;
 };
 
-// complete
 class CAnimManager
 {
 public:

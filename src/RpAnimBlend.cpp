@@ -515,7 +515,7 @@ RwMatrixExtractRotation(RwMatrix *m)
 void
 RpAnimBlendClumpInitSkinned(RpClump *clump)
 {
-	RwV3d boneTab[64];
+//	RwV3d boneTab[64];
 	RwMatrix matTab[64];
 	RpAnimBlendAllocateData(clump);
 	CAnimBlendClumpData *clumpData = *RWPLUGINOFFSET(CAnimBlendClumpData*, clump, ClumpOffset);
@@ -524,22 +524,22 @@ RpAnimBlendClumpInitSkinned(RpClump *clump)
 	RwUInt32 numBones = RpSkinGetNumBones(skin);
 	clumpData->SetNumberOfBones(numBones);
 	RpHAnimHierarchy *hier = GetAnimHierarchyFromSkinClump(clump);
-	memset(boneTab, 0, sizeof(boneTab));
-	SkinGetBonePositionsToTable(clump, boneTab);
-//	SkinGetBoneMatricesToTable(clump, matTab);
+//	memset(boneTab, 0, sizeof(boneTab));
+//	SkinGetBonePositionsToTable(clump, boneTab);
+	SkinGetBoneMatricesToTable(clump, matTab);
 
-	// The order of frames here is important and currently has to be the same for all models
 	AnimBlendFrameData *frames = clumpData->frames;
 	for(uint i = 0; i < numBones; i++){
 		frames[i].nodeID = hier->pNodeInfo[i].nodeID;
-		frames[i].pos = boneTab[i];
+//		frames[i].pos = boneTab[i];
+		frames[i].pos = matTab[i].pos;
 		frames[i].hanimframe = (RpHAnimKeyFrame*)rtANIMGETINTERPFRAME(hier->currentAnim, i);
 
-///		frames[i].hanimframe->t = matTab[i].pos;
-///		frames[i].hanimframe->q = RwMatrixExtractRotation(&matTab[i]);
-///		frames[i].updateFlag = 0;
-//		if(frames[i].nodeID >= 5000)
-//			frames[i].updateFlag |= CAnimBlendAssociation::NoRotation | CAnimBlendAssociation::NoTranslation;
+		frames[i].hanimframe->t = matTab[i].pos;
+		frames[i].hanimframe->q = RwMatrixExtractRotation(&matTab[i]);
+
+		clumpData->frameext[i].pos = matTab[i].pos;
+		clumpData->frameext[i].rot = RwMatrixExtractRotation(&matTab[i]);
 	}
 	clumpData->ForAllFrames(ZeroFlag, NULL);
 	clumpData->frames[0].updateFlag |= CAnimBlendAssociation::Flag8;

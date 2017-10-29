@@ -44,6 +44,21 @@ CAnimBlendAssocGroup::CopyAnimation(const char *name)
 	return NULL;
 }
 
+CAnimBlendAssociation*
+CAnimBlendAssocGroup::CopyAnimation(uint i, RpClump *clump)
+{
+	CAnimBlendAssociation *anim;
+	anim = &this->assocList[i - this->baseIndex];
+	if(anim){
+		CAnimManager::UncompressAnimation(anim->hierarchy);
+		CAnimBlendAssociation *copy = (CAnimBlendAssociation *)gta_nw(sizeof(CAnimBlendAssociation));
+		if(copy)
+			copy = new (copy) CAnimBlendAssociation(*anim, clump);
+		return copy;
+	}
+	return NULL;
+}
+
 void
 CAnimBlendAssocGroup::CreateAssociations(const char *name, RpClump *clump, char **names, int numAnims)
 {

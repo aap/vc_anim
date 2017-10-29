@@ -214,10 +214,12 @@ FrameUpdateCallBackSkinned(AnimBlendFrameData *frame, void *arg)
 		}while(*node);
 	}
 
+	bool touched = false;
 	node = nodes+1;
 	do{
 		if((*node)->sequence){
 			bool nodelooped = (*node)->Update(vec, q, 1.0f-totalBlendAmount);
+			touched = true; 
 			if(q.x*rot.x + q.y*rot.y + q.z*rot.z + q.w*rot.w < 0.0f)
 				rot.Sub(q);
 			else
@@ -247,6 +249,13 @@ FrameUpdateCallBackSkinned(AnimBlendFrameData *frame, void *arg)
 		frameData->t.x = posBlendAmount * pos.x + frame->pos.x * (1.0f - posBlendAmount);
 		frameData->t.y = posBlendAmount * pos.y + frame->pos.y * (1.0f - posBlendAmount);
 		frameData->t.z = posBlendAmount * pos.z + frame->pos.z * (1.0f - posBlendAmount);
+	}
+
+	// custom. go back to bind pose if animation didn't touch this node
+	if(!touched){
+		int nodenum = frame - gpAnimBlendClump->frames;
+		frameData->t = gpAnimBlendClump->frameext[nodenum].pos;
+		frameData->q = gpAnimBlendClump->frameext[nodenum].rot;
 	}
 }
 

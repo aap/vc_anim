@@ -66,23 +66,20 @@ lcstrcmp(const char *s1, const char *s2)
 	return 0;
 }
 
+static_assert(sizeof(CAnimBlendSequence) == 0x30, "CAnimBlendSequence: error");
+static_assert(sizeof(CAnimBlendHierarchy) == 0x28, "CAnimBlendSequence: error");
+static_assert(sizeof(CAnimBlock) == 0x20, "CAnimBlendSequence: error");
+static_assert(sizeof(CAnimBlendNode) == 0x1C, "CAnimBlendSequence: error");
+static_assert(sizeof(CAnimBlendAssociation) == 0x3C, "CAnimBlendSequence: error");
+static_assert(sizeof(CAnimBlendAssocGroup) == 0x14, "CAnimBlendSequence: error");
+static_assert(sizeof(AnimBlendFrameData) == 0x18, "CAnimBlendSequence: error");
+static_assert(sizeof(CAnimBlendClumpData) == 0x14, "CAnimBlendSequence: error");
+static_assert(sizeof(RFrame) == 0x14, "CAnimBlendSequence: error");
+static_assert(sizeof(RTFrame) == 0x20, "CAnimBlendSequence: error");
+
 void
 patch10(void)
 {
-	if(sizeof(CAnimBlendSequence) != 0x30 ||
-	   sizeof(CAnimBlendHierarchy) != 0x28 ||
-	   sizeof(CAnimBlock) != 0x20 ||
-	   sizeof(CAnimBlendNode) != 0x1C ||
-	   sizeof(CAnimBlendAssociation) != 0x3C ||
-	   sizeof(CAnimBlendAssocGroup) != 0x14 ||
-	   sizeof(AnimBlendFrameData) != 0x18 ||
-	   sizeof(CAnimBlendClumpData) != 0x14 ||
-	   sizeof(RFrame) != 0x14 ||
-	   sizeof(RTFrame) != 0x20){
-		printf("SIZE MISMATCH\\n");
-		return;
-	}
-
 	// fucking hell
 	MemoryVP::InjectHook(0x401010, static_cast<CAnimBlendAssociation*(CAnimBlendAssocGroup::*)(uint)>(&CAnimBlendAssocGroup::CopyAnimation), PATCH_JUMP);
 	MemoryVP::InjectHook(0x401050, static_cast<CAnimBlendAssociation*(CAnimBlendAssocGroup::*)(const char*)>(&CAnimBlendAssocGroup::CopyAnimation), PATCH_JUMP);

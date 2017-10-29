@@ -27,3 +27,6 @@ project "vc_anim"
 		defines { "NDEBUG" }
 		optimize "On"
 		flags { "StaticRuntime" }
+		debugdir "C:/Users/aap/games/gtavc"
+		debugcommand "C:/Users/aap/games/gtavc/gta_vc.exe"
+		postbuildcommands "copy /y \"$(TargetPath)\" \"C:\\Users\\aap\\games\\gtavc\\dlls\\vc_anim.dll\""

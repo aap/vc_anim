@@ -110,6 +110,45 @@ CAnimBlendAssociation::Init(RpClump *clump, CAnimBlendHierarchy *anim)
 	}
 }
 
+// Copy the BlendAssoc in such a way that it can work with a different frame hierarchy
+void
+CAnimBlendAssociation::CopyForClump(CAnimBlendAssociation &anim, RpClump *clump)
+{
+	CAnimBlendClumpData *clumpData = *RWPLUGINOFFSET(CAnimBlendClumpData*, clump, ClumpOffset);
+
+	this->hierarchy = anim.hierarchy;
+	this->numNodes = clumpData->numFrames;
+	this->flags = anim.flags;
+	this->animId = anim.animId;
+	this->groupId = anim.groupId;
+	this->nodes = (CAnimBlendNode*)RwMallocAlign((sizeof(CAnimBlendNode)*this->numNodes + 0x3F)&~0x3F, 64);
+	for(int i = 0; i < this->numNodes; i++){
+		this->nodes[i].Init();
+		this->nodes[i].blendAssoc = this;
+	}
+
+	CAnimBlendHierarchy *hier = anim.hierarchy;
+	AnimBlendFrameData *frameData;
+	for(int i = 0; i < anim.numNodes; i++){
+		CAnimBlendSequence *seq = anim.nodes[i].sequence;
+		if(seq == NULL)
+			continue;
+		if(seq->boneTag == -1)
+			frameData = RpAnimBlendClumpFindFrame(clump, seq->name);
+		else
+			frameData = RpAnimBlendClumpFindBone(clump, seq->boneTag);
+		if(frameData && seq->numFrames > 0){
+			int n = frameData - clumpData->frames;
+			this->nodes[n].sequence = seq;
+			this->nodes[n].theta0 = anim.nodes[i].theta0;
+			this->nodes[n].theta1 = anim.nodes[i].theta1;
+			this->nodes[n].frame0 = anim.nodes[i].frame0;
+			this->nodes[n].frame1 = anim.nodes[i].frame1;
+			this->nodes[n].time = anim.nodes[i].time;
+		}
+	}
+}
+
 CAnimBlendAssociation::CAnimBlendAssociation(void) { ctor(); }
 CAnimBlendAssociation::CAnimBlendAssociation(CAnimBlendAssociation &a)
 {
@@ -124,6 +163,21 @@ CAnimBlendAssociation::CAnimBlendAssociation(CAnimBlendAssociation &a)
 	this->next = NULL;
 	this->prev = NULL;
 	this->Init(a);
+}
+CAnimBlendAssociation::CAnimBlendAssociation(CAnimBlendAssociation &a, RpClump *clump)
+{
+	this->vtable = &CAnimBlendAssociation_VTable;
+	this->nodes = NULL;
+	this->blendAmount = 1.0f;
+	this->blendDelta = 0.0f;
+	this->currentTime = 0.0f;
+	this->speed = 1.0f;
+	this->timeStep = 0.0f;
+	this->callbackType = 0;
+	this->next = NULL;
+	this->prev = NULL;
+	this->CopyForClump(a, clump);
+//	this->Init(clump, a.hierarchy);
 }
 CAnimBlendAssociation::~CAnimBlendAssociation(void) { dtor(); }
 
