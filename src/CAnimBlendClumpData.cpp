@@ -13,9 +13,11 @@ CAnimBlendClumpData::SetNumberOfBones(int n)
 	if(this->frames)
 		RwFreeAlign(this->frames);
 	this->frames = (AnimBlendFrameData*)RwMallocAlign((sizeof(AnimBlendFrameData)*n + 0x3F)&~0x3F, 64);
+#ifdef FRAMEEXT
 	if(this->frameext)
 		gtadelete(this->frameext);
 	this->frameext = (FrameExt*)gta_nw(sizeof(FrameExt)*n);
+#endif
 	this->numFrames = n;
 }
 
@@ -29,7 +31,9 @@ CAnimBlendClumpData::ctor(void)
 	this->numFrames = 0;
 	this->pedPosition = NULL;
 	this->frames = NULL;
+#ifdef FRAMEEXT
 	this->frameext = NULL;
+#endif
 	this->nextAssoc = NULL;
 	this->prevAssoc = NULL;
 }
@@ -45,6 +49,8 @@ CAnimBlendClumpData::dtor(void)
 	this->prevAssoc = NULL;
 	if(this->frames)
 		RwFreeAlign(this->frames);
+#ifdef FRAMEEXT
 	if(this->frameext)
 		gtadelete(this->frameext);
+#endif
 }

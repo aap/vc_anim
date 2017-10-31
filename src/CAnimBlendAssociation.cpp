@@ -129,10 +129,8 @@ CAnimBlendAssociation::CopyForClump(CAnimBlendAssociation &anim, RpClump *clump)
 
 	CAnimBlendHierarchy *hier = anim.hierarchy;
 	AnimBlendFrameData *frameData;
-	for(int i = 0; i < anim.numNodes; i++){
-		CAnimBlendSequence *seq = anim.nodes[i].sequence;
-		if(seq == NULL)
-			continue;
+	for(int i = 0; i < anim.hierarchy->numSequences; i++){
+		CAnimBlendSequence *seq = &anim.hierarchy->blendSequences[i];
 		if(seq->boneTag == -1)
 			frameData = RpAnimBlendClumpFindFrame(clump, seq->name);
 		else
@@ -140,11 +138,6 @@ CAnimBlendAssociation::CopyForClump(CAnimBlendAssociation &anim, RpClump *clump)
 		if(frameData && seq->numFrames > 0){
 			int n = frameData - clumpData->frames;
 			this->nodes[n].sequence = seq;
-			this->nodes[n].theta0 = anim.nodes[i].theta0;
-			this->nodes[n].theta1 = anim.nodes[i].theta1;
-			this->nodes[n].frame0 = anim.nodes[i].frame0;
-			this->nodes[n].frame1 = anim.nodes[i].frame1;
-			this->nodes[n].time = anim.nodes[i].time;
 		}
 	}
 }

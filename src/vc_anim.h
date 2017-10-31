@@ -13,6 +13,9 @@
 #include <new>
 #include "MemoryMgr.h"
 
+#define FRAMEEXT
+#define ADAPTHIERARCHY
+
 typedef unsigned int uint;
 
 extern void **&RwEngineInst;
@@ -349,7 +352,9 @@ public:
 	int numFrames;
 	CVector *pedPosition;
 	AnimBlendFrameData *frames;
+#ifdef FRAMEEXT
 	FrameExt *frameext;
+#endif
 
 	void ForAllFrames(void (*cb)(AnimBlendFrameData*, void*), void *arg);
 	void SetNumberOfBones(int n);

@@ -515,7 +515,7 @@ RwMatrixExtractRotation(RwMatrix *m)
 void
 RpAnimBlendClumpInitSkinned(RpClump *clump)
 {
-//	RwV3d boneTab[64];
+	RwV3d boneTab[64];
 	RwMatrix matTab[64];
 	RpAnimBlendAllocateData(clump);
 	CAnimBlendClumpData *clumpData = *RWPLUGINOFFSET(CAnimBlendClumpData*, clump, ClumpOffset);
@@ -524,22 +524,24 @@ RpAnimBlendClumpInitSkinned(RpClump *clump)
 	RwUInt32 numBones = RpSkinGetNumBones(skin);
 	clumpData->SetNumberOfBones(numBones);
 	RpHAnimHierarchy *hier = GetAnimHierarchyFromSkinClump(clump);
-//	memset(boneTab, 0, sizeof(boneTab));
-//	SkinGetBonePositionsToTable(clump, boneTab);
+	memset(boneTab, 0, sizeof(boneTab));
+	SkinGetBonePositionsToTable(clump, boneTab);
 	SkinGetBoneMatricesToTable(clump, matTab);
 
 	AnimBlendFrameData *frames = clumpData->frames;
 	for(uint i = 0; i < numBones; i++){
 		frames[i].nodeID = hier->pNodeInfo[i].nodeID;
-//		frames[i].pos = boneTab[i];
-		frames[i].pos = matTab[i].pos;
+		frames[i].pos = boneTab[i];
+//		frames[i].pos = matTab[i].pos;
 		frames[i].hanimframe = (RpHAnimKeyFrame*)rtANIMGETINTERPFRAME(hier->currentAnim, i);
 
 		frames[i].hanimframe->t = matTab[i].pos;
 		frames[i].hanimframe->q = RwMatrixExtractRotation(&matTab[i]);
 
+#ifdef FRAMEEXT
 		clumpData->frameext[i].pos = matTab[i].pos;
 		clumpData->frameext[i].rot = RwMatrixExtractRotation(&matTab[i]);
+#endif
 	}
 	clumpData->ForAllFrames(ZeroFlag, NULL);
 	clumpData->frames[0].updateFlag |= CAnimBlendAssociation::Flag8;
@@ -565,7 +567,7 @@ RpAnimBlendClumpFillFrameArray(RpClump *clump, AnimBlendFrameData **frames)
 		clumpData->ForAllFrames(FillFrameArrayCallback, frames);
 }
 
-static AnimBlendFrameData *foundFrame;
+static AnimBlendFrameData *&foundFrame = *(AnimBlendFrameData**)0x6F7180;
 
 void
 FrameFindByIndexCallback(AnimBlendFrameData *frame, void *arg)

@@ -46,7 +46,7 @@ gtastrcmp(const char *s1, const char *s2)
 		if(c1 != c2)
 			return 1;
 	}
-	return 0;
+	return *s2 != '\0';
 }
 
 int
@@ -73,7 +73,7 @@ static_assert(sizeof(CAnimBlendNode) == 0x1C, "CAnimBlendSequence: error");
 static_assert(sizeof(CAnimBlendAssociation) == 0x3C, "CAnimBlendSequence: error");
 static_assert(sizeof(CAnimBlendAssocGroup) == 0x14, "CAnimBlendSequence: error");
 static_assert(sizeof(AnimBlendFrameData) == 0x18, "CAnimBlendSequence: error");
-static_assert(sizeof(CAnimBlendClumpData) == 0x14, "CAnimBlendSequence: error");
+//static_assert(sizeof(CAnimBlendClumpData) == 0x14, "CAnimBlendSequence: error");
 static_assert(sizeof(RFrame) == 0x14, "CAnimBlendSequence: error");
 static_assert(sizeof(RTFrame) == 0x20, "CAnimBlendSequence: error");
 
